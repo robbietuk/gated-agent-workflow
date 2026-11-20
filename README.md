@@ -1,5 +1,7 @@
 # Agentic workflow for Cursor
 
+**[Open the docs site: guide, slides and cheat sheet](https://robbietuk.github.io/gated-agent-workflow/)**
+
 Skills, subagents, a stop hook and templates that turn a manual research -> plan -> implement -> review
 routine in [Cursor](https://cursor.com) into a gated, mostly agentic workflow for software features and bug
 fixes. Built for regulated (medical-device) software, where traceability and human sign-off matter.
