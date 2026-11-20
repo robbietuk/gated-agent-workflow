@@ -60,6 +60,7 @@ Recommend one, with a one-line reason, and let the user choose:
 - **Replan -> plan:** the design holds but a slice is too big, mis-ordered, has wrong acceptance criteria or
   a wrong locked test. Set `PHASE=plan`. Ask: "Continue with `/wf-plan` now?"
 - **Spec is wrong:** suggest editing `spec.md` with the user first, then `/wf-brainstorm`.
+If this chat is long, recommend a new chat for the next step: the reason is recorded in `decisions.md`.
 
 ## Never
 - Keep coding "just to try one thing" after escalating.

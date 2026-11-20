@@ -82,7 +82,7 @@ A bug whose root cause turns out to be a design flaw moves to the brainstorm loo
 
 A feature goes from `/wf-start` to a merged PR in seven steps, with four points where you must approve.
 
-Every command ends by asking “Continue with the next command now?”. Say yes and it carries on in the same chat; say no and run the next command later, or in a fresh chat. It never moves on without a yes.
+Every command ends by asking “Continue with the next command now?”. Say yes and it carries on in the same chat; say no and run the next command later, or in a fresh chat. It never moves on without a yes. It also recommends where: keep going in the same chat through spec, research, brainstorm and plan, then start a new chat for `/wf-build` and for `/wf-pr` (and for later slices once a chat gets long). Every stage reads its inputs from `.workflow/`, so a new chat loses nothing and keeps the agent's context small.
 
 1.  **Start: `/wf-start`**
 

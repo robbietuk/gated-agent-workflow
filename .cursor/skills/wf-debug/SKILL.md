@@ -65,8 +65,9 @@ approve, change, or rethink?
   `Lock SHA` filled, `Review rounds: 0/3`. Mark outline `approved <date>`.
 - Dated `decisions.md` entry: root cause, approved fix approach, req/hazard IDs.
 - Keep `PHASE=plan` (`/wf-build` switches it to `build` when it starts; setting it here would make the
-  stop hook fire on the still-failing regression test at the end of this turn). Tell the user:
-  Ask: "Continue with `/wf-build` now?"
+  stop hook fire on the still-failing regression test at the end of this turn). Then ask:
+  "Recommended: start a new chat and run `/wf-build` (the root cause is in bug-report.md). Or continue
+  here now?"
 
 ## Red flags: stop and go back to step 3
 "Quick fix for now", "just try changing X", several changes before one test run, "it's probably X",

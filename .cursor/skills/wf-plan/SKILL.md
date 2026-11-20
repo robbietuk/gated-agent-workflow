@@ -57,8 +57,9 @@ you revise. Responses:
   tests; on the bug track keep the LOCK_SHA from /wf-debug and keep S1 as `tests-locked`). Do **not** set
   `PHASE=build` here: `/wf-build` does that when it starts, so the stop hook never fires at the end of a
   planning turn.
-- Ask: "Continue with `/wf-build` now? It starts with S1; once it starts, the stop hook runs build +
-  tests after every agent turn."
+- Recommend a new chat, then ask: "Recommended: start a new chat and run `/wf-build` (it starts with S1
+  and only needs the outline). Or continue here now?" Once `/wf-build` starts, the stop hook runs build +
+  tests after every agent turn.
 
 ## Never
 - Write product code or tests in this skill.

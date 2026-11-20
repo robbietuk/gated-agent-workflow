@@ -69,13 +69,17 @@ Set slice `Status: show-me`. Show the user, then **stop and wait**:
 User replies:
 - **Approve** -> commit the slice: `git add` the slice's files, `git commit -m "feat(<SLICE>): <goal>
   [<req IDs>]"` (`fix(...)` for bugs). Set `Status: done`. Next slice: set `SLICE` to it in active.env,
-  ask "Continue with <next slice> now?", and on a yes start again at the Preconditions. No slices left -> set `PHASE=pr`, then ask: "Continue with `/wf-pr` now?"
+  ask "Continue with <next slice> now?" (if this chat is long or the slice was large, recommend a new chat and
+  `/wf-build` instead), and on a yes start again at the Preconditions. No slices left -> set `PHASE=pr`, then
+  ask: "Recommended: start a new chat and run `/wf-pr` (it reviews the whole branch from files). Or continue
+  here now?"
 - **Change something small within the slice** -> do it, re-verify, show again.
 - **Not what I meant / plan is wrong** -> `/wf-escalate` (reason "show-me").
 
 ## End of every invocation
-Tell the user where you are (slice, status, rounds used), then ask whether to continue with the next step:
-the next slice, `/wf-pr`, or `/wf-escalate`. Continue only on a yes.
+Tell the user where you are (slice, status, rounds used), recommend where to run the next step (see the
+hand-off table in the workflow rule), then ask whether to continue: the next slice, `/wf-pr`, or
+`/wf-escalate`. Continue only on a yes.
 
 ## Never
 - Write production code before the slice's tests fail for the right reason.

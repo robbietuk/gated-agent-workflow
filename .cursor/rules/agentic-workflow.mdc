@@ -24,7 +24,17 @@ slice is done.
 - **Traceability.** Keep requirement / hazard IDs on slices, tests, commits and the PR description.
 - **Never** merge, push, force-push, `reset --hard`, `clean`, or delete branches without the user asking
   for that exact action in this conversation.
-- **Hand-off: ask, then continue.** Every `/wf-*` skill ends by updating `PHASE` and asking
-  "Continue with `/wf-<next>` now?". On a yes, read `.cursor/skills/wf-<next>/SKILL.md` and follow it in this
-  chat. On a no (or no answer), stop; the user can run the command later. Never continue without a yes.
-  Before `/wf-build` or `/wf-pr`, if this chat is already long, suggest starting a fresh chat instead.
+- **Hand-off: recommend, ask, then continue.** Every `/wf-*` skill ends by updating `PHASE`, saying where
+  to run the next step, and asking "Continue with `/wf-<next>` now?". On a yes, read
+  `.cursor/skills/wf-<next>/SKILL.md` and follow it in this chat. On a no (or no answer), stop; the user can
+  run the command later. Never continue without a yes. Where to run the next step (every artifact is on
+  disk, so a new chat loses nothing but the conversation):
+  | Next step | Recommend |
+  |---|---|
+  | `/wf-research`, `/wf-brainstorm`, `/wf-plan` | Continue here (short, conversational stages) |
+  | `/wf-build` (first slice, from plan or debug) | **New chat**, then `/wf-build`: the outline is all it needs |
+  | Next slice in `/wf-build` | Continue here if the chat is short; **new chat** if it is long or the slice was large |
+  | `/wf-pr` | **New chat**, then `/wf-pr`: it reviews the whole branch from files |
+  | After `/wf-escalate` | Continue here if short; otherwise **new chat**, the reason is in `decisions.md` |
+  Say it as one line, e.g. "Recommended: start a new chat and run `/wf-build` (keeps the build's context
+  clean). Or continue here now?"

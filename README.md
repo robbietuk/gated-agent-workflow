@@ -132,6 +132,9 @@ If the root cause is a design flaw, `/wf-debug` sends you to `/wf-brainstorm` in
 ### Moving between stages
 Every `/wf-*` command ends by asking **"Continue with `/wf-<next>` now?"**. Say yes and it carries on in the
 same chat; say no and run the next command later (or in a fresh chat). It never moves on without a yes.
+It also recommends where to run it: continue in the same chat through spec, research, brainstorm and plan;
+start a **new chat** for `/wf-build` and for `/wf-pr` (and for later slices once a chat gets long). Every
+stage reads its inputs from `.workflow/`, so a new chat loses nothing and keeps the context small.
 
 ### When something goes wrong
 `/wf-escalate` at any time. The agent runs it itself when a limit is hit. It stops work, proposes how to
