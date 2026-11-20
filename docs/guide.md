@@ -411,6 +411,7 @@ The kit is a Cursor plugin. Install it once, then let `/wf-start` set up each re
 1.  **Install the plugin**, one of three ways:
     - **Team marketplace** (best for a team): in the Cursor dashboard, **Plugins & MCPs → Add Marketplace → Import from Repo**, paste `https://github.com/robbietuk/gated-agent-workflow`, then in Cursor open **Customize** and install **gated-agent-workflow**.
     - **Local plugin** (just you): link the repo's `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow` and reload the window. Your organisation may need to allow local plugins.
+    - **Claude Code**: `/plugin marketplace add robbietuk/gated-agent-workflow`, then `/plugin install gated-agent-workflow@gated-agent-workflow`. A session-start hook adds the guardrails, and "new chat" means `/clear`.
     - **Copy into a repo** (no plugins): `bash tools/install-into-repo.sh /path/to/repo` puts the skills, subagents, rule and hook in the repo's `.cursor/` and sets up `.workflow/`.
 
     The plugin contains the 8 skills, the 4 read-only subagents (`researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier`), the stop hook and the always-on rule.

@@ -3,6 +3,7 @@ name: slice-reviewer
 description: Fresh, read-only two-stage reviewer for ONE slice in /wf-build. Stage 1 checks spec compliance against the slice's outline block; stage 2 checks code quality. Classifies every finding as a code issue (fix) or a plan issue (escalate).
 model: inherit
 readonly: true
+tools: Read, Grep, Glob, Bash
 is_background: false
 ---
 

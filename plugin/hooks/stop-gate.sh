@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# stop-gate.sh - Cursor "stop" hook for the agentic workflow kit.
+# stop-gate.sh - "stop" hook for the agentic workflow kit (Cursor and Claude Code).
 #
 # Runs after every agent turn. Does nothing unless a work item is in the build
 # phase. In build phase it:
@@ -8,8 +8,10 @@
 #   3. on failure, auto-submits a follow-up telling the agent to fix the code,
 #   4. after MAX_STOP_RUNS failing runs, tells the agent to stop and /wf-escalate.
 #
-# Input  (stdin): JSON from Cursor, e.g. {"status":"completed","loop_count":0,...}
-# Output (stdout): nothing, or {"followup_message":"..."}. Always exits 0.
+# Input  (stdin): JSON from Cursor, e.g. {"status":"completed","loop_count":0,"workspace_roots":[...]},
+#                 or from Claude Code, e.g. {"hook_event_name":"Stop","stop_hook_active":false,"cwd":"..."}.
+# Output (stdout): nothing, or a message for the agent: {"followup_message":"..."} for Cursor,
+#                 {"decision":"block","reason":"..."} for Claude Code. Always exits 0.
 # Dependencies: bash, git, sed, grep, awk, tr. No jq.
 
 set -u
@@ -21,9 +23,21 @@ STATUS="$(printf '%s' "$FLAT" | sed -n 's/.*"status"[[:space:]]*:[[:space:]]*"\(
 LOOP_COUNT="$(printf '%s' "$FLAT" | sed -n 's/.*"loop_count"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p')"
 case "$LOOP_COUNT" in ''|*[!0-9]*) LOOP_COUNT=0 ;; esac
 
+# Claude Code sends hook_event_name "Stop" and stop_hook_active (true when Claude is already
+# continuing because of this hook). It has no status or loop_count, so the run count is kept in a file.
+HOST=cursor
+case "$FLAT" in *'"stop_hook_active"'*|*'"hook_event_name"'*:*'"Stop"'*) HOST=claude ;; esac
+STOP_ACTIVE=false
+if [ "$HOST" = claude ]; then
+  STATUS=completed
+  printf '%s' "$FLAT" | grep -q '"stop_hook_active"[[:space:]]*:[[:space:]]*true' && STOP_ACTIVE=true
+fi
+
 # Work from the project, not the hook's own folder: a plugin hook may start elsewhere. Prefer the
 # first workspace root Cursor passes in, then the git top level of the current directory.
 WS="$(printf '%s' "$FLAT" | sed -n 's/.*"workspace_roots"[[:space:]]*:[[:space:]]*\[[[:space:]]*"\([^"]*\)".*/\1/p')"
+[ -z "$WS" ] && WS="$(printf '%s' "$FLAT" | sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+[ -z "$WS" ] && WS="${CLAUDE_PROJECT_DIR:-}"
 [ -n "$WS" ] && [ -d "$WS" ] && cd "$WS" 2>/dev/null
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT" || exit 0
@@ -60,7 +74,7 @@ case "${MAX_STOP_RUNS:-}" in ''|*[!0-9]*) MAX_STOP_RUNS=5 ;; esac
 
 ESC="$(printf '\033')"
 
-# Print {"followup_message": <$1 as a JSON string>} on stdout.
+# Print the message $1 as JSON on stdout, in the host's format.
 emit() {
   local cleaned
   cleaned="$(printf '%s' "$1" \
@@ -69,8 +83,8 @@ emit() {
   if command -v iconv >/dev/null 2>&1; then
     cleaned="$(printf '%s' "$cleaned" | iconv -c -f UTF-8 -t UTF-8 2>/dev/null || printf '%s' "$cleaned")"
   fi
-  printf '%s' "$cleaned" | awk '
-    BEGIN { ORS = ""; printf "{\"followup_message\":\"" }
+  printf '%s' "$cleaned" | awk -v host="$HOST" '
+    BEGIN { ORS = ""; if (host == "claude") printf "{\"decision\":\"block\",\"reason\":\""; else printf "{\"followup_message\":\"" }
     {
       gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); gsub(/\t/, "\\t")
       if (NR > 1) printf "\\n"
@@ -78,6 +92,21 @@ emit() {
     }
     END { print "\"}\n" }'
 }
+
+# Claude Code: count this hook's consecutive runs in a file (reset when Claude stops on its own).
+COUNT_FILE="$WORK_DIR/.stop-runs"
+if [ "$HOST" = claude ]; then
+  if [ "$STOP_ACTIVE" = true ]; then
+    LOOP_COUNT="$(cat "$COUNT_FILE" 2>/dev/null || echo 0)"
+    case "$LOOP_COUNT" in ''|*[!0-9]*) LOOP_COUNT=0 ;; esac
+  else
+    LOOP_COUNT=0
+  fi
+  echo $((LOOP_COUNT + 1)) > "$COUNT_FILE" 2>/dev/null || true
+fi
+
+# Past the cap the escalation message has already been sent: let the agent stop.
+[ "$LOOP_COUNT" -ge "$MAX_STOP_RUNS" ] && exit 0
 
 RUN_NO=$((LOOP_COUNT + 1))
 SLICE_LABEL="${SLICE:-current slice}"
@@ -137,7 +166,7 @@ if [ "$RC" -eq 0 ] && [ -n "$TEST_CMD" ]; then
 fi
 echo "# exit ${RC}" >> "$LOG"
 
-[ "$RC" -eq 0 ] && exit 0
+if [ "$RC" -eq 0 ]; then rm -f "$COUNT_FILE" 2>/dev/null; exit 0; fi
 
 TAIL="$(tail -n 40 "$LOG")"
 

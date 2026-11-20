@@ -3,6 +3,7 @@ name: finding-verifier
 description: Read-only skeptic for /wf-pr. Takes the merged list of lens-reviewer findings and keeps only those with a concrete, plausible failure scenario backed by the code; drops duplicates and speculation; assigns final BLOCKER / IMPORTANT / NIT ranks.
 model: inherit
 readonly: true
+tools: Read, Grep, Glob, Bash
 is_background: false
 ---
 

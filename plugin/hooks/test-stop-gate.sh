@@ -174,6 +174,51 @@ OUT="$(run_hook completed 0)"
 expect_followup "falls back to .cursor/workflow.env" "$OUT" "failing"
 mv .cursor/workflow.env .workflow/config.env
 
+# ---- Claude Code input/output ------------------------------------------------
+run_claude() { # $1 = stop_hook_active (true|false); started outside the repo, finds it via cwd
+  ( cd / && printf '{\n  "session_id": "s1",\n  "hook_event_name": "Stop",\n  "stop_hook_active": %s,\n  "cwd": "%s"\n}\n' \
+    "$1" "$TMP" | bash "$TMP/.cursor/hooks/stop-gate.sh" )
+}
+claude_reason() { # stdin -> prints reason; fails unless {"decision":"block","reason":"..."}
+  python3 -c 'import json,sys; d=json.loads(sys.stdin.read()); assert d["decision"]=="block"; m=d["reason"]; assert isinstance(m,str) and m; sys.stdout.write(m)'
+}
+expect_block() { # $1 name, $2 output, $3.. required substrings
+  local name="$1" out="$2" msg s; shift 2
+  if [ -z "$out" ]; then bad "$name" "expected block JSON, got nothing"; return; fi
+  if ! msg="$(printf '%s' "$out" | claude_reason 2>&1)"; then bad "$name" "invalid block JSON: $msg"; return; fi
+  for s in "$@"; do
+    case "$msg" in *"$s"*) ;; *) bad "$name" "reason missing: $s"; return ;; esac
+  done
+  ok "$name (valid JSON)"
+}
+
+write_active build "$LOCK"
+sed 's/^TEST_CMD=.*/TEST_CMD="exit 1"/; s/^MAX_STOP_RUNS=.*/MAX_STOP_RUNS=3/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
+OUT="$(run_claude false)"
+expect_block "claude: failing tests -> block, run 1" "$OUT" "run 1 of 3" "Fix the code, not the tests"
+OUT="$(run_claude true)"
+expect_block "claude: still failing -> run 2" "$OUT" "run 2 of 3"
+OUT="$(run_claude true)"
+expect_block "claude: cap reached -> escalate" "$OUT" "cap reached" "/wf-escalate"
+OUT="$(run_claude true)"
+expect_silent "claude: past the cap -> lets Claude stop" "$OUT"
+OUT="$(run_claude false)"
+expect_block "claude: new turn resets the count" "$OUT" "run 1 of 3"
+
+printf 'x\n' >> tests/test_dose.py
+OUT="$(run_claude false)"
+expect_block "claude: locked test edited -> restore message" "$OUT" "git checkout $LOCK -- tests/test_dose.py"
+git checkout -q "$LOCK" -- tests/test_dose.py
+
+sed 's/^TEST_CMD=.*/TEST_CMD="true"/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
+OUT="$(run_claude false)"
+expect_silent "claude: passing -> silent" "$OUT"
+if [ -e .workflow/2026-01-01-demo/.stop-runs ]; then bad "claude: passing clears the run count" "file still there"; else ok "claude: passing clears the run count"; fi
+
+write_active plan "$LOCK"
+OUT="$(run_claude false)"
+expect_silent "claude: PHASE=plan -> silent" "$OUT"
+
 echo
 echo "stop-gate tests: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

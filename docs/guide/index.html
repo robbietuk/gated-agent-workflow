@@ -884,6 +884,12 @@ Cursor open <strong>Customize</strong> and install
 <code>plugin/</code> folder to
 <code>~/.cursor/plugins/local/gated-agent-workflow</code> and reload the
 window. Your organisation may need to allow local plugins.</li>
+<li><strong>Claude Code</strong>:
+<code>/plugin marketplace add robbietuk/gated-agent-workflow</code>,
+then
+<code>/plugin install gated-agent-workflow@gated-agent-workflow</code>.
+A session-start hook adds the guardrails, and "new chat" means
+<code>/clear</code>.</li>
 <li><strong>Copy into a repo</strong> (no plugins):
 <code>bash tools/install-into-repo.sh /path/to/repo</code> puts the
 skills, subagents, rule and hook in the repo's <code>.cursor/</code> and
