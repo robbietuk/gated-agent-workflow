@@ -56,9 +56,9 @@ Mark the slice `Status: escalated` in outline.md with a pointer to the entry, an
 ## 5. Route (the user decides)
 Recommend one, with a one-line reason, and let the user choose:
 - **Rethink -> brainstorm:** the design, an approach, a requirement or a hazard mitigation is wrong, or
-  the fix keeps revealing new coupling. Set `PHASE=brainstorm`. "Next: run `/wf-brainstorm`."
+  the fix keeps revealing new coupling. Set `PHASE=brainstorm`. Ask: "Continue with `/wf-brainstorm` now?"
 - **Replan -> plan:** the design holds but a slice is too big, mis-ordered, has wrong acceptance criteria or
-  a wrong locked test. Set `PHASE=plan`. "Next: run `/wf-plan`."
+  a wrong locked test. Set `PHASE=plan`. Ask: "Continue with `/wf-plan` now?"
 - **Spec is wrong:** suggest editing `spec.md` with the user first, then `/wf-brainstorm`.
 
 ## Never

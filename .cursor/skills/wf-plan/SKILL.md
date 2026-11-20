@@ -49,7 +49,7 @@ you revise. Responses:
 - **Revise** -> change outline.md, show the diff, ask again. More than 3 rounds: say so and suggest
   revisiting `spec.md`.
 - **Rework** (the design is wrong) -> append a dated entry to `decisions.md`, set `PHASE=brainstorm`,
-  "Next: run `/wf-brainstorm`."
+  Ask: "Continue with `/wf-brainstorm` now?"
 
 ## 5. Hand off (on approval only)
 - Outline `Status: approved <date>`; dated entry in `decisions.md`.
@@ -57,7 +57,7 @@ you revise. Responses:
   tests; on the bug track keep the LOCK_SHA from /wf-debug and keep S1 as `tests-locked`). Do **not** set
   `PHASE=build` here: `/wf-build` does that when it starts, so the stop hook never fires at the end of a
   planning turn.
-- Tell the user: "Next: run `/wf-build` (it starts with S1). Once it starts, the stop hook runs build +
+- Ask: "Continue with `/wf-build` now? It starts with S1; once it starts, the stop hook runs build +
   tests after every agent turn."
 
 ## Never

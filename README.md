@@ -128,6 +128,10 @@ If the root cause is a design flaw, `/wf-debug` sends you to `/wf-brainstorm` in
 /wf-pr
 ```
 
+### Moving between stages
+Every `/wf-*` command ends by asking **"Continue with `/wf-<next>` now?"**. Say yes and it carries on in the
+same chat; say no and run the next command later (or in a fresh chat). It never moves on without a yes.
+
 ### When something goes wrong
 `/wf-escalate` at any time. The agent runs it itself when a limit is hit. It stops work, proposes how to
 undo the slice (you confirm any git command), logs a dated entry in `decisions.md`, and routes back to

@@ -60,9 +60,9 @@ or fix will depend on. Rules (the researcher sees only this file):
 
 ## 6. Hand off
 Set `PHASE` in `.workflow/active.env`, then tell the user exactly:
-- **feature:** `PHASE=research`. "Next: run `/wf-research`."
-- **bug:** `PHASE=research`. "Next: run `/wf-debug`."
-- **small:** `PHASE=plan`. "Next: run `/wf-plan` (one-slice outline). Optional first: `/wf-research`."
+- **feature:** `PHASE=research`. Ask: "Continue with `/wf-research` now?"
+- **bug:** `PHASE=research`. Ask: "Continue with `/wf-debug` now?"
+- **small:** `PHASE=plan`. Ask: "Continue with `/wf-plan` now? (one-slice outline). Optional first: `/wf-research`."
 
 ## Never
 - Write product code or tests here.

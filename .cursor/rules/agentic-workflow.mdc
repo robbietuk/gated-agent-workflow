@@ -24,4 +24,7 @@ slice is done.
 - **Traceability.** Keep requirement / hazard IDs on slices, tests, commits and the PR description.
 - **Never** merge, push, force-push, `reset --hard`, `clean`, or delete branches without the user asking
   for that exact action in this conversation.
-- Every `/wf-*` skill ends by updating `PHASE` and telling the user the next command.
+- **Hand-off: ask, then continue.** Every `/wf-*` skill ends by updating `PHASE` and asking
+  "Continue with `/wf-<next>` now?". On a yes, read `.cursor/skills/wf-<next>/SKILL.md` and follow it in this
+  chat. On a no (or no answer), stop; the user can run the command later. Never continue without a yes.
+  Before `/wf-build` or `/wf-pr`, if this chat is already long, suggest starting a fresh chat instead.

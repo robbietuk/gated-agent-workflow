@@ -55,8 +55,8 @@ sentences, smallest fix at the source), files likely touched, risks, and affecte
 approve, change, or rethink?
 - **Design flaw** (each fix would reveal new coupling elsewhere; the fix needs new behaviour or an
   architecture change; the requirement itself is wrong): say so, add a dated `decisions.md` entry, set
-  `PHASE=brainstorm`, "Next: run `/wf-brainstorm`." The locked test stays.
-- **Fix needs more than one slice:** set `PHASE=plan`, "Next: run `/wf-plan`." (S1 keeps the locked test.)
+  `PHASE=brainstorm`, then ask: "Continue with `/wf-brainstorm` now?" The locked test stays.
+- **Fix needs more than one slice:** set `PHASE=plan`, then ask: "Continue with `/wf-plan` now?" (S1 keeps the locked test.)
 
 ## 6. Hand off (on approval)
 - Copy `.workflow/templates/outline.md` to `$WORK_DIR/outline.md` with one slice **S1**: goal = the fix,
@@ -66,7 +66,7 @@ approve, change, or rethink?
 - Dated `decisions.md` entry: root cause, approved fix approach, req/hazard IDs.
 - Keep `PHASE=plan` (`/wf-build` switches it to `build` when it starts; setting it here would make the
   stop hook fire on the still-failing regression test at the end of this turn). Tell the user:
-  "Next: run `/wf-build`."
+  Ask: "Continue with `/wf-build` now?"
 
 ## Red flags: stop and go back to step 3
 "Quick fix for now", "just try changing X", several changes before one test run, "it's probably X",

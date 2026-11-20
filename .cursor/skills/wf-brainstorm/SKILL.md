@@ -56,7 +56,7 @@ so and suggest revisiting `spec.md`.
 ## 6. Hand off (on approval only)
 - Set `Status: approved <date>` in design.md and append a dated entry to `decisions.md` (decision,
   approach chosen, req IDs affected).
-- Set `PHASE=plan`. Tell the user: "Next: run `/wf-plan`."
+- Set `PHASE=plan`. Ask: "Continue with `/wf-plan` now?"
 
 ## Red flags
 | Thought | Reality |

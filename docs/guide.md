@@ -82,6 +82,8 @@ A bug whose root cause turns out to be a design flaw moves to the brainstorm loo
 
 A feature goes from /wf-start to a merged PR in seven steps, with four points where you must approve.
 
+Every command ends by asking “Continue with the next command now?”. Say yes and it carries on in the same chat; say no and run the next command later, or in a fresh chat. It never moves on without a yes.
+
 1.  **Start: /wf-start**
 
     - You: describe the feature; confirm the Feature track; agree spec.md (what, why, done).

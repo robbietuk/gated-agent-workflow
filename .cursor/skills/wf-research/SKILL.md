@@ -40,8 +40,8 @@ the spec (a constraint, a conflict, an existing feature that already does part o
 change the spec, ask the user whether to update `spec.md` before moving on.
 
 ## 4. Hand off
-- **feature:** set `PHASE=brainstorm`. "Next: run `/wf-brainstorm`."
-- **small:** set `PHASE=plan`. "Next: run `/wf-plan`."
+- **feature:** set `PHASE=brainstorm`. Ask: "Continue with `/wf-brainstorm` now?"
+- **small:** set `PHASE=plan`. Ask: "Continue with `/wf-plan` now?"
 - **bug** (research used during debugging): set nothing; "Back to `/wf-debug`."
 
 ## Never

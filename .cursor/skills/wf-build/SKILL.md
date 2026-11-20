@@ -68,14 +68,14 @@ Set slice `Status: show-me`. Show the user, then **stop and wait**:
 
 User replies:
 - **Approve** -> commit the slice: `git add` the slice's files, `git commit -m "feat(<SLICE>): <goal>
-  [<req IDs>]"` (`fix(...)` for bugs). Set `Status: done`. Next slice: set `SLICE` to it in active.env
-  and start again at the Preconditions. No slices left -> set `PHASE=pr`, "Next: run `/wf-pr`."
+  [<req IDs>]"` (`fix(...)` for bugs). Set `Status: done`. Next slice: set `SLICE` to it in active.env,
+  ask "Continue with <next slice> now?", and on a yes start again at the Preconditions. No slices left -> set `PHASE=pr`, then ask: "Continue with `/wf-pr` now?"
 - **Change something small within the slice** -> do it, re-verify, show again.
 - **Not what I meant / plan is wrong** -> `/wf-escalate` (reason "show-me").
 
 ## End of every invocation
-Tell the user where you are (slice, status, rounds used) and the next command: `/wf-build` (continue or
-next slice), `/wf-pr`, or `/wf-escalate`.
+Tell the user where you are (slice, status, rounds used), then ask whether to continue with the next step:
+the next slice, `/wf-pr`, or `/wf-escalate`. Continue only on a yes.
 
 ## Never
 - Write production code before the slice's tests fail for the right reason.
