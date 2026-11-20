@@ -1,0 +1,66 @@
+<section id="start" class="hl hl-start" data-transition="fade">
+<h2 class="h2-tight">Start: spec, questions and research</h2>
+<div class="diagram">
+<div class="cols">
+<div class="col col-start">
+<p class="col-title">Start</p>
+<p class="skill">/wf-start<br>/wf-research</p>
+<p class="mbox m-you">Spec</p>
+<p class="mbox m-agent">Questions</p>
+<p class="mbox m-agent">Research</p>
+<p class="loop">Research never sees the spec</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-brain">
+<p class="col-title">Brainstorm loop</p>
+<p class="skill">/wf-brainstorm</p>
+<p class="mbox m-you">Options</p>
+<p class="mbox m-gate">Design doc</p>
+<p class="loop">↻ revise until approved</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-plan">
+<p class="col-title">Planning loop</p>
+<p class="skill">/wf-plan</p>
+<p class="mbox m-gate">Slice outline</p>
+<p class="mbox m-you">Approve outline</p>
+<p class="loop">↻ revise, or rework design</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-slice">
+<p class="col-title">Per slice loop</p>
+<p class="skill">/wf-build</p>
+<p class="mbox m-agent">Lock tests</p>
+<p class="mbox m-agent">Implement</p>
+<p class="mbox m-agent">Fresh review</p>
+<p class="mbox m-you">Show-me + commit</p>
+<p class="loop">↻ fix ≤ 3, next slice</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-pr">
+<p class="col-title">PR loop</p>
+<p class="skill">/wf-pr</p>
+<p class="mbox m-agent">PR description</p>
+<p class="mbox m-agent">Branch review</p>
+<p class="mbox m-you">Your code read</p>
+<p class="loop">↻ fix ≤ 2</p>
+</div>
+</div>
+<div class="esc-bar"><p class="esc-txt"><b>Escalate · /wf-escalate:</b> revert, replan, log it. Fired by a hit limit, a review, the show-me or your code read.</p></div>
+</div>
+<div class="details grid3">
+<div class="dcard">
+<p class="dtitle">You write the spec</p>
+<p class="dtxt">What, why, what done looks like, constraints and what’s out of scope.</p>
+</div>
+<div class="dcard">
+<p class="dtitle">The agent drafts questions</p>
+<p class="dtxt">Questions the codebase must answer before anyone designs a solution.</p>
+</div>
+<div class="dcard">
+<p class="dtitle">Research stays neutral</p>
+<p class="dtxt">A read-only researcher sees the questions only, never the spec, and returns facts with file and line references.</p>
+</div>
+</div>
+<aside>Research that knows the intended solution goes looking for evidence for it. Giving it only questions keeps the findings objective, which is why the spec never reaches the researcher.</aside>
+</section>

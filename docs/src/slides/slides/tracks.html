@@ -1,0 +1,28 @@
+<section id="tracks" class="alt" data-transition="fade">
+<h2>Three tracks for features, bugs and small changes</h2>
+<div class="grid3">
+<div class="card card-you">
+<p class="tag">Feature</p>
+<h3>Full workflow</h3>
+<p class="skill">/wf-start · /wf-research · /wf-brainstorm · /wf-plan · /wf-build · /wf-pr</p>
+<p class="txt">Spec, research, brainstorm, planning, slices, PR.</p>
+<p class="txt-sm">Example: a new configuration parameter for an instrument.</p>
+</div>
+<div class="card card-agent">
+<p class="tag-agent">Bug</p>
+<h3>Root cause first</h3>
+<p class="skill">/wf-start · /wf-debug · /wf-build · /wf-pr</p>
+<p class="txt">Reproduce, lock a failing regression test, find the root cause with evidence. You approve the cause and fix, then one slice and a PR.</p>
+<p class="txt-sm">Example: a sync message dropped after reconnect.</p>
+</div>
+<div class="card">
+<p class="tag-both">Small change</p>
+<h3>One slice</h3>
+<p class="skill">/wf-start · /wf-plan · /wf-build · /wf-pr</p>
+<p class="txt">Spec, a one-slice outline you approve, build, PR.</p>
+<p class="txt-sm">Example: a wrong label or log message.</p>
+</div>
+</div>
+<p class="note">/wf-start picks the track. A bug whose root cause is a design flaw moves to the brainstorm loop.</p>
+<aside>Most of our work is features and bugs, so the bug track gets its own path. It follows systematic debugging: no fix without a root cause, and the regression test must fail before the fix.</aside>
+</section>

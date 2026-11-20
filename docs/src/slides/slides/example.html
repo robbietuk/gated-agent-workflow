@@ -1,0 +1,27 @@
+<section id="example" data-transition="fade">
+<h2>Example: a finding only the branch review catches</h2>
+<div class="grid2">
+<div class="code">
+<p class="code-line"><span class="kw">skill:</span> /wf-pr (branch review, simplified)</p>
+<p class="code-line"><span class="kw">when:</span> all slices committed, before PR</p>
+<p class="code-line">1. Diff branch vs main; read design</p>
+<p class="code-line">   and outline</p>
+<p class="code-line">2. One fresh reviewer per lens:</p>
+<p class="code-line">   safety, concurrency, errors,</p>
+<p class="code-line">   compatibility, traceability</p>
+<p class="code-line">3. Verifier keeps findings with exact</p>
+<p class="code-line">   failing inputs and state</p>
+<p class="code-line">4. Rank BLOCKER / IMPORTANT / NIT</p>
+<p class="code-line">5. NIT fix · IMPORTANT fix (max 2)</p>
+<p class="code-line">   BLOCKER escalate</p>
+</div>
+<div class="card card-you">
+<p class="tag">Blocker · concurrency · verified</p>
+<p class="txt">ConfigStore::apply() (slice 2) writes the device profile while SyncSession::send() (slice 4) can read it.</p>
+<p class="txt">Each slice passed review on its own.</p>
+<p class="txt"><b>Failure:</b> a sync during apply sends a half-old, half-new config.</p>
+<p class="txt-sm">Req CFG-12 · illustrative example</p>
+</div>
+</div>
+<aside>This example is made up, but it’s the classic cross-slice bug: two slices that are each correct, combined into a race. Per-slice reviews can’t see it; the whole-branch concurrency lens can.</aside>
+</section>

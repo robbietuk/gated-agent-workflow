@@ -1,0 +1,60 @@
+<section id="overview" data-transition="fade">
+<p class="eyebrow">The workflow</p>
+<h2 class="h2-tight">The full workflow</h2>
+<div class="diagram">
+<div class="cols">
+<div class="col col-start">
+<p class="col-title">Start</p>
+<p class="skill">/wf-start<br>/wf-research</p>
+<p class="mbox m-you">Spec</p>
+<p class="mbox m-agent">Questions</p>
+<p class="mbox m-agent">Research</p>
+<p class="loop">Research never sees the spec</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-brain">
+<p class="col-title">Brainstorm loop</p>
+<p class="skill">/wf-brainstorm</p>
+<p class="mbox m-you">Options</p>
+<p class="mbox m-gate">Design doc</p>
+<p class="loop">↻ revise until approved</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-plan">
+<p class="col-title">Planning loop</p>
+<p class="skill">/wf-plan</p>
+<p class="mbox m-gate">Slice outline</p>
+<p class="mbox m-you">Approve outline</p>
+<p class="loop">↻ revise, or rework design</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-slice">
+<p class="col-title">Per slice loop</p>
+<p class="skill">/wf-build</p>
+<p class="mbox m-agent">Lock tests</p>
+<p class="mbox m-agent">Implement</p>
+<p class="mbox m-agent">Fresh review</p>
+<p class="mbox m-you">Show-me + commit</p>
+<p class="loop">↻ fix ≤ 3, next slice</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-pr">
+<p class="col-title">PR loop</p>
+<p class="skill">/wf-pr</p>
+<p class="mbox m-agent">PR description</p>
+<p class="mbox m-agent">Branch review</p>
+<p class="mbox m-you">Your code read</p>
+<p class="loop">↻ fix ≤ 2</p>
+</div>
+</div>
+<div class="esc-bar"><p class="esc-txt"><b>Escalate · /wf-escalate:</b> revert, replan, log it. Fired by a hit limit, a review, the show-me or your code read.</p></div>
+</div>
+<div class="legend">
+<p class="legend-item m-you">You</p>
+<p class="legend-item m-agent">Agent</p>
+<p class="legend-item m-gate">Agent drafts, you approve</p>
+<p class="legend-note">Dashed: escalation back to brainstorm or planning</p>
+</div>
+<p class="note" style="margin-top:20px;font-size:26px">Each command ends by asking to continue: same chat through planning, a <b>new chat</b> for <span style="font-family:JetBrains Mono,monospace;color:var(--you)">/wf-build</span> and <span style="font-family:JetBrains Mono,monospace;color:var(--you)">/wf-pr</span>.</p>
+<aside>This is the whole feature track. Each command ends by asking whether to continue: stay in the same chat through planning, then start a new chat for the build and the PR, since every stage reads its inputs from files. Purple boxes are where a person decides; teal boxes run on their own. The dashed bar is the safety valve: plan problems always come back to a human, who reverts, replans and logs the decision. The next slides zoom into each loop.</aside>
+</section>

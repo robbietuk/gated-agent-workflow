@@ -1,0 +1,36 @@
+<section id="rollout" data-transition="fade">
+<p class="eyebrow">Rollout</p>
+<h2>Rollout plan</h2>
+<div class="flow">
+<div class="flow-card">
+<p class="num">1</p>
+<p class="stage">Plan skill</p>
+<p class="skill">/wf-plan</p>
+<p class="txt-sm">Questions, slices, req IDs, tests.</p>
+</div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="flow-card">
+<p class="num">2</p>
+<p class="stage">Stop hook</p>
+<p class="skill">stop-gate.sh</p>
+<p class="txt-sm">Build and tests as the gate, capped at 5.</p>
+</div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="flow-card">
+<p class="num">3</p>
+<p class="stage">Build loop</p>
+<p class="skill">/wf-build</p>
+<p class="txt-sm">Locked tests and fresh review per slice.</p>
+</div>
+<x-shape kind="arrow-right" class="arrow"></x-shape>
+<div class="flow-card">
+<p class="num">4</p>
+<p class="stage">Branch review</p>
+<p class="skill">/wf-pr</p>
+<p class="txt-sm">Lenses and a verify pass before the PR.</p>
+</div>
+</div>
+<p class="note">Start with show-me on every slice. Relax to “slice 1 plus triggers” as escalations become rare.</p>
+<p class="txt">Watch: escalations per item · rework after PR · time from approved outline to PR.</p>
+<aside>The stop hook is what makes it safe to step back, so it goes in early. The show-me checkpoint is the dial: it starts on every slice and gets relaxed as the numbers earn it.</aside>
+</section>

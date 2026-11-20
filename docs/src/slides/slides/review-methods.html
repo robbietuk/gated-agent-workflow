@@ -1,0 +1,30 @@
+<section id="review-methods" class="alt" data-transition="fade">
+<h2>Six methods for the branch code review</h2>
+<div class="grid3">
+<div class="card">
+<h3>Whole branch vs design</h3>
+<p class="txt-sm">Catches drift between slices, duplicated logic and anything that misfits the design.</p>
+</div>
+<div class="card">
+<h3>Parallel narrow lenses</h3>
+<p class="txt-sm">One fresh reviewer each: safety, concurrency, error handling, compatibility, traceability.</p>
+</div>
+<div class="card">
+<h3>Verify pass</h3>
+<p class="txt-sm">A second agent must show the failing inputs and state. Unconfirmed findings are dropped.</p>
+</div>
+<div class="card">
+<h3>Severity ranking</h3>
+<p class="txt-sm">Blockers escalate. Important issues get fixed. Nits are fixed automatically.</p>
+</div>
+<div class="card">
+<h3>A second model</h3>
+<p class="txt-sm">A different model from the one that wrote the code catches different mistakes.</p>
+</div>
+<div class="card">
+<h3>Test adequacy</h3>
+<p class="txt-sm">Every req ID has a test that fails if its code is removed.</p>
+</div>
+</div>
+<aside>Narrow checklists beat one general reviewer. The verify pass is what keeps the noise down: a finding only survives if it can name a concrete failure.</aside>
+</section>

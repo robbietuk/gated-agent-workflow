@@ -20,6 +20,14 @@ fixes. Built for regulated (medical-device) software, where traceability and hum
 
 ---
 
+### Editing the docs
+The docs site is plain HTML in [`docs/`](docs). The guide's source is [`docs/guide.md`](docs/guide.md); the slides'
+sources are in [`docs/src/slides/`](docs/src/slides) (one HTML file per slide). After editing either, run
+`python3 tools/build_docs.py` (needs `pandoc`) to regenerate `docs/guide/index.html` and `docs/slides/index.html`.
+The cheat sheet ([`docs/cheatsheet.html`](docs/cheatsheet.html)) is edited directly; use its Print button to save a PDF.
+
+---
+
 ## About the kit
 
 A drop-in set of Cursor skills, subagents, a stop hook and templates that turns a manual

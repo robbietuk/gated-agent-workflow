@@ -910,9 +910,10 @@ the stage: <code>/wf-brainstorm</code> should ask one question at a
 time. Check <code>spec.md</code> has real open points; a spec that
 answers everything leaves nothing to ask.</p>
 <p><strong>The context is getting long or the agent is losing
-track.</strong> Start a new chat per phase. State lives in
-<code>.workflow/active.env</code> and the work folder, so the next
-command picks up where you left off.</p>
+track.</strong> Start a new chat; each command's hand-off recommends
+when (always for <code>/wf-build</code> and <code>/wf-pr</code>). State
+lives in <code>.workflow/active.env</code> and the work folder, so the
+next command picks up where you left off.</p>
 <p><strong>My Cursor version doesn't show skills, subagents or
 hooks.</strong> The kit uses <code>.cursor/skills</code>,
 <code>.cursor/agents</code> and <code>hooks.json</code> (v1, stop hook
@@ -998,6 +999,9 @@ lock failing test, root cause) → <code>/wf-build</code> (one slice) →
 </tbody>
 </table>
 <ul>
+<li><p><strong>Hand-offs</strong>: every command ends by asking to
+continue. Same chat through planning; a new chat for
+<code>/wf-build</code> and <code>/wf-pr</code>.</p></li>
 <li><p><strong>Per slice</strong>: lock failing tests → implement (stop
 hook) → two-stage review → show-me → commit.</p></li>
 <li><p><strong>Branch review</strong>: lenses → verify → rank. NIT: fix.

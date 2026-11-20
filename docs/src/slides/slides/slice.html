@@ -1,0 +1,70 @@
+<section id="slice" class="hl hl-slice" data-transition="fade">
+<h2 class="h2-tight">Building loop: one slice at a time</h2>
+<div class="diagram">
+<div class="cols">
+<div class="col col-start">
+<p class="col-title">Start</p>
+<p class="skill">/wf-start<br>/wf-research</p>
+<p class="mbox m-you">Spec</p>
+<p class="mbox m-agent">Questions</p>
+<p class="mbox m-agent">Research</p>
+<p class="loop">Research never sees the spec</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-brain">
+<p class="col-title">Brainstorm loop</p>
+<p class="skill">/wf-brainstorm</p>
+<p class="mbox m-you">Options</p>
+<p class="mbox m-gate">Design doc</p>
+<p class="loop">↻ revise until approved</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-plan">
+<p class="col-title">Planning loop</p>
+<p class="skill">/wf-plan</p>
+<p class="mbox m-gate">Slice outline</p>
+<p class="mbox m-you">Approve outline</p>
+<p class="loop">↻ revise, or rework design</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-slice">
+<p class="col-title">Per slice loop</p>
+<p class="skill">/wf-build</p>
+<p class="mbox m-agent">Lock tests</p>
+<p class="mbox m-agent">Implement</p>
+<p class="mbox m-agent">Fresh review</p>
+<p class="mbox m-you">Show-me + commit</p>
+<p class="loop">↻ fix ≤ 3, next slice</p>
+</div>
+<x-shape kind="arrow-right" class="col-arrow"></x-shape>
+<div class="col col-pr">
+<p class="col-title">PR loop</p>
+<p class="skill">/wf-pr</p>
+<p class="mbox m-agent">PR description</p>
+<p class="mbox m-agent">Branch review</p>
+<p class="mbox m-you">Your code read</p>
+<p class="loop">↻ fix ≤ 2</p>
+</div>
+</div>
+<div class="esc-bar"><p class="esc-txt"><b>Escalate · /wf-escalate:</b> revert, replan, log it. Fired by a hit limit, a review, the show-me or your code read.</p></div>
+</div>
+<div class="details grid4">
+<div class="dcard">
+<p class="dtitle">Lock failing tests</p>
+<p class="dtxt">Written from the outline, seen to fail, committed before any code.</p>
+</div>
+<div class="dcard">
+<p class="dtitle">Implement</p>
+<p class="dtxt">A stop hook runs the build and tests after each turn. Max 5 runs.</p>
+</div>
+<div class="dcard">
+<p class="dtitle">Fresh review</p>
+<p class="dtxt">A new agent checks the spec, then code quality. Max 3 fix rounds.</p>
+</div>
+<div class="dcard">
+<p class="dtitle">Show-me + commit</p>
+<p class="dtxt">You see the slice run with test evidence, then approve and commit.</p>
+</div>
+</div>
+<aside>The stop hook is a script, not the model’s opinion. The reviewer has a fresh context, so the work isn’t grading itself. Code issues loop back to implement; plan issues and hit limits escalate.</aside>
+</section>

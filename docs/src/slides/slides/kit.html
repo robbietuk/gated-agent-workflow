@@ -1,0 +1,21 @@
+<section id="kit" class="alt" data-transition="fade">
+<p class="eyebrow">The kit</p>
+<h2>What’s in the kit</h2>
+<div class="grid3">
+<div class="card">
+<h3>8 skills</h3>
+<p class="txt-sm">/wf-start, /wf-research, /wf-brainstorm, /wf-plan, /wf-build, /wf-debug, /wf-escalate, /wf-pr</p>
+</div>
+<div class="card">
+<h3>4 read-only subagents</h3>
+<p class="txt-sm">researcher, slice-reviewer, lens-reviewer, finding-verifier. Each starts with a fresh context.</p>
+</div>
+<div class="card">
+<h3>1 stop hook</h3>
+<p class="txt-sm">Runs build and tests after each turn, protects locked tests, escalates at the cap.</p>
+</div>
+</div>
+<p class="note">Drop it into the repo root, set BUILD_CMD and TEST_CMD in .cursor/workflow.env, and start with /wf-start. Work files live in .workflow/&lt;date-slug&gt;/.</p>
+<p class="txt-sm">Skills adapted from obra/superpowers (MIT).</p>
+<aside>Brainstorming, planning, the build loop, TDD, debugging and review are adapted from the open-source superpowers skills, changed for Cursor, our gates and our limits.</aside>
+</section>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$title$</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root { --ink:#172033; --light:#F6F4EF; --light2:#ECE8DF; --card:#FDFCF9; --body:#3F4A5C; --muted:#5E6878;
+          --you:#5B4BD1; --you-dark:#3A2E99; --you-tint:#ECEAFB; --agent:#0E7C66; --agent-tint:#E1F2EC; --line:#D9D4C7; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body { margin: 0; background: var(--light); color: var(--body); font: 16px/1.65 Inter, Arial, sans-serif; }
+  header.top { background: var(--ink); color: var(--light); padding: 40px 0 32px; }
+  header.top .in { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+  header.top .eyebrow { color: #B8AFF5; font: 600 13px Inter, sans-serif; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 8px; }
+  header.top h1 { font: 700 44px/1.1 'Space Grotesk', Arial, sans-serif; margin: 0; color: var(--light); }
+  header.top p.lede { color: #C9D2E0; font-size: 18px; margin: 10px 0 0; }
+  header.top nav { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  header.top nav a { color: var(--light); text-decoration: none; border: 1px solid #2A3550; border-radius: 999px; padding: 5px 14px; font-size: 14px; }
+  header.top nav a:hover { border-color: #B8AFF5; }
+  .layout { max-width: 1180px; margin: 0 auto; padding: 32px 28px 80px; display: grid; grid-template-columns: 250px 1fr; gap: 44px; }
+  aside.toc { position: sticky; top: 20px; align-self: start; max-height: calc(100vh - 40px); overflow: auto; font-size: 14px; }
+  aside.toc p { font: 600 12px Inter, sans-serif; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  aside.toc ul { list-style: none; padding: 0; margin: 0; }
+  aside.toc ul ul { padding-left: 12px; }
+  aside.toc a { display: block; color: var(--body); text-decoration: none; padding: 4px 10px; border-left: 2px solid var(--line); }
+  aside.toc a:hover { color: var(--ink); background: var(--light2); }
+  aside.toc a.active { color: var(--you-dark); border-left-color: var(--you); background: var(--you-tint); font-weight: 600; }
+  main { min-width: 0; }
+  main > h1:first-child { display: none; }
+  h2 { font: 700 28px/1.2 'Space Grotesk', Arial, sans-serif; color: var(--ink); margin: 48px 0 14px; padding-top: 18px; border-top: 1px solid var(--line); }
+  h2:first-of-type { margin-top: 0; border-top: 0; padding-top: 0; }
+  h3 { font: 600 20px/1.3 'Space Grotesk', Arial, sans-serif; color: var(--ink); margin: 28px 0 10px; }
+  a { color: var(--you-dark); }
+  strong { color: var(--ink); }
+  code { font: 0.88em 'JetBrains Mono', monospace; background: var(--light2); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+  code.wf { background: var(--you-tint); color: var(--you-dark); font-weight: 600; }
+  pre { position: relative; background: var(--ink); color: #DCE3EE; padding: 16px 18px; border-radius: 12px; overflow: auto; }
+  pre code { background: none; color: inherit; padding: 0; font-size: 14px; }
+  pre button.copy { position: absolute; top: 8px; right: 8px; background: #2A3550; color: #DCE3EE; border: 0; border-radius: 6px; padding: 3px 10px; font: 12px Inter, sans-serif; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 15px; display: block; overflow-x: auto; }
+  thead th { background: var(--light2); color: var(--ink); text-align: left; font-weight: 600; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--light2); vertical-align: top; }
+  tbody tr:hover { background: #FAF8F3; }
+  blockquote { margin: 16px 0; padding: 14px 18px; background: var(--you-tint); border-left: 4px solid var(--you); border-radius: 0 10px 10px 0; color: var(--ink); }
+  blockquote p { margin: 0; }
+  img { max-width: 100%; height: auto; display: block; margin: 16px 0 6px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+  ul.task-list { list-style: none; padding-left: 4px; }
+  ul.task-list li { padding: 3px 0; }
+  ul.task-list input { accent-color: var(--you); margin-right: 8px; transform: scale(1.15); }
+  li { margin: 3px 0; }
+  .note { font-size: 13px; color: var(--muted); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } aside.toc { position: static; max-height: none; } header.top h1 { font-size: 34px; } }
+  @media print { header.top nav, aside.toc, pre button.copy { display: none; } .layout { display: block; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <p class="eyebrow">Cursor · Gated agent workflow</p>
+  <h1>$title$</h1>
+  <p class="lede">Manual where you think. Agentic where it builds.</p>
+  <nav><a href="../index.html">Docs home</a><a href="../slides/index.html">Slides</a><a href="../cheatsheet.html">Cheat sheet</a><a href="https://github.com/robbietuk/gated-agent-workflow">GitHub</a></nav>
+</div></header>
+<div class="layout">
+<aside class="toc"><p>Contents</p>$table-of-contents$<p class="note" style="margin-top:14px;text-transform:none;letter-spacing:0;font-weight:400">Ticks in checklists are saved in this browser only.</p></aside>
+<main>
+$body$
+</main>
+</div>
+<script>
+// highlight /wf-* commands
+document.querySelectorAll('main code').forEach(c => { if (/^\/wf-/.test(c.textContent)) c.classList.add('wf'); });
+// copy buttons on code blocks
+document.querySelectorAll('pre').forEach(p => { const b = document.createElement('button'); b.className = 'copy'; b.type = 'button'; b.textContent = 'Copy';
+  b.onclick = () => navigator.clipboard?.writeText(p.innerText.replace(/Copy$$/, '').trim()).then(() => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1200); });
+  p.appendChild(b); });
+// checklists: make ticks usable and remember them locally
+document.querySelectorAll('main input[type=checkbox]').forEach((cb, i) => { cb.disabled = false; const k = 'gaw-guide-cb-' + i;
+  try { cb.checked = localStorage.getItem(k) === '1'; } catch (e) {}
+  cb.addEventListener('change', () => { try { localStorage.setItem(k, cb.checked ? '1' : '0'); } catch (e) {} }); });
+// scrollspy for the contents
+const links = [...document.querySelectorAll('aside.toc a')], map = new Map(links.map(a => [decodeURIComponent(a.hash.slice(1)), a]));
+const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.classList.remove('active')); map.get(e.target.id)?.classList.add('active'); } }),
+  { rootMargin: '0px 0px -70% 0px' });
+document.querySelectorAll('main h2[id], main h3[id], main section[id]').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

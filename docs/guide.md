@@ -454,7 +454,7 @@ Most problems come from setup, a skipped gate, or a context that has grown too l
 
 **The agent skips asking questions.** Say so and restart the stage: `/wf-brainstorm` should ask one question at a time. Check `spec.md` has real open points; a spec that answers everything leaves nothing to ask.
 
-**The context is getting long or the agent is losing track.** Start a new chat per phase. State lives in `.workflow/active.env` and the work folder, so the next command picks up where you left off.
+**The context is getting long or the agent is losing track.** Start a new chat; each command's hand-off recommends when (always for `/wf-build` and `/wf-pr`). State lives in `.workflow/active.env` and the work folder, so the next command picks up where you left off.
 
 **My Cursor version doesn't show skills, subagents or hooks.** The kit uses `.cursor/skills`, `.cursor/agents` and `hooks.json` (v1, stop hook with followup_message and loop_count). Update Cursor to a version that supports them; check the Cursor docs for each feature.
 
@@ -479,6 +479,8 @@ One page: commands per track, who acts at each gate, and the limits.
 | Slice review → fix | 3 rounds    | Escalate         |
 | PR fix → re-run    | 2 rounds    | Escalate         |
 | Planning rounds    | More than 3 | Revisit the spec |
+
+- **Hand-offs**: every command ends by asking to continue. Same chat through planning; a new chat for `/wf-build` and `/wf-pr`.
 
 - **Per slice**: lock failing tests → implement (stop hook) → two-stage review → show-me → commit.
 
