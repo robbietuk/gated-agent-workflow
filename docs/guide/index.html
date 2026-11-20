@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentic workflow guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root { --ink:#172033; --light:#F6F4EF; --light2:#ECE8DF; --card:#FDFCF9; --body:#3F4A5C; --muted:#5E6878;
+          --you:#5B4BD1; --you-dark:#3A2E99; --you-tint:#ECEAFB; --agent:#0E7C66; --agent-tint:#E1F2EC; --line:#D9D4C7; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body { margin: 0; background: var(--light); color: var(--body); font: 16px/1.65 Inter, Arial, sans-serif; }
+  header.top { background: var(--ink); color: var(--light); padding: 40px 0 32px; }
+  header.top .in { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+  header.top .eyebrow { color: #B8AFF5; font: 600 13px Inter, sans-serif; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 8px; }
+  header.top h1 { font: 700 44px/1.1 'Space Grotesk', Arial, sans-serif; margin: 0; color: var(--light); }
+  header.top p.lede { color: #C9D2E0; font-size: 18px; margin: 10px 0 0; }
+  header.top nav { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  header.top nav a { color: var(--light); text-decoration: none; border: 1px solid #2A3550; border-radius: 999px; padding: 5px 14px; font-size: 14px; }
+  header.top nav a:hover { border-color: #B8AFF5; }
+  .layout { max-width: 1180px; margin: 0 auto; padding: 32px 28px 80px; display: grid; grid-template-columns: 250px 1fr; gap: 44px; }
+  aside.toc { position: sticky; top: 20px; align-self: start; max-height: calc(100vh - 40px); overflow: auto; font-size: 14px; }
+  aside.toc p { font: 600 12px Inter, sans-serif; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  aside.toc ul { list-style: none; padding: 0; margin: 0; }
+  aside.toc ul ul { padding-left: 12px; }
+  aside.toc a { display: block; color: var(--body); text-decoration: none; padding: 4px 10px; border-left: 2px solid var(--line); }
+  aside.toc a:hover { color: var(--ink); background: var(--light2); }
+  aside.toc a.active { color: var(--you-dark); border-left-color: var(--you); background: var(--you-tint); font-weight: 600; }
+  main { min-width: 0; }
+  main > h1:first-child { display: none; }
+  h2 { font: 700 28px/1.2 'Space Grotesk', Arial, sans-serif; color: var(--ink); margin: 48px 0 14px; padding-top: 18px; border-top: 1px solid var(--line); }
+  h2:first-of-type { margin-top: 0; border-top: 0; padding-top: 0; }
+  h3 { font: 600 20px/1.3 'Space Grotesk', Arial, sans-serif; color: var(--ink); margin: 28px 0 10px; }
+  a { color: var(--you-dark); }
+  strong { color: var(--ink); }
+  code { font: 0.88em 'JetBrains Mono', monospace; background: var(--light2); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+  code.wf { background: var(--you-tint); color: var(--you-dark); font-weight: 600; }
+  pre { position: relative; background: var(--ink); color: #DCE3EE; padding: 16px 18px; border-radius: 12px; overflow: auto; }
+  pre code { background: none; color: inherit; padding: 0; font-size: 14px; }
+  pre button.copy { position: absolute; top: 8px; right: 8px; background: #2A3550; color: #DCE3EE; border: 0; border-radius: 6px; padding: 3px 10px; font: 12px Inter, sans-serif; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 15px; display: block; overflow-x: auto; }
+  thead th { background: var(--light2); color: var(--ink); text-align: left; font-weight: 600; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--light2); vertical-align: top; }
+  tbody tr:hover { background: #FAF8F3; }
+  blockquote { margin: 16px 0; padding: 14px 18px; background: var(--you-tint); border-left: 4px solid var(--you); border-radius: 0 10px 10px 0; color: var(--ink); }
+  blockquote p { margin: 0; }
+  img { max-width: 100%; height: auto; display: block; margin: 16px 0 6px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+  ul.task-list { list-style: none; padding-left: 4px; }
+  ul.task-list li { padding: 3px 0; }
+  ul.task-list input { accent-color: var(--you); margin-right: 8px; transform: scale(1.15); }
+  li { margin: 3px 0; }
+  .note { font-size: 13px; color: var(--muted); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } aside.toc { position: static; max-height: none; } header.top h1 { font-size: 34px; } }
+  @media print { header.top nav, aside.toc, pre button.copy { display: none; } .layout { display: block; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <p class="eyebrow">Cursor · Gated agent workflow</p>
+  <h1>Agentic workflow guide</h1>
+  <p class="lede">Manual where you think. Agentic where it builds.</p>
+  <nav><a href="../index.html">Docs home</a><a href="../slides/index.html">Slides</a><a href="../cheatsheet.html">Cheat sheet</a><a href="https://github.com/robbietuk/gated-agent-workflow">GitHub</a></nav>
+</div></header>
+<div class="layout">
+<aside class="toc"><p>Contents</p><ul>
+<li><a href="#1-what-this-is" id="toc-1-what-this-is">1. What this
+is</a></li>
+<li><a href="#2-the-workflow-at-a-glance"
+id="toc-2-the-workflow-at-a-glance">2. The workflow at a glance</a></li>
+<li><a href="#3-choosing-a-track" id="toc-3-choosing-a-track">3.
+Choosing a track</a></li>
+<li><a href="#4-feature-walkthrough" id="toc-4-feature-walkthrough">4.
+Feature walkthrough</a></li>
+<li><a href="#5-bug-walkthrough" id="toc-5-bug-walkthrough">5. Bug
+walkthrough</a></li>
+<li><a href="#6-small-change-walkthrough"
+id="toc-6-small-change-walkthrough">6. Small change walkthrough</a></li>
+<li><a href="#7-gates-and-loops" id="toc-7-gates-and-loops">7. Gates and
+loops</a></li>
+<li><a href="#8-iteration-limits" id="toc-8-iteration-limits">8.
+Iteration limits</a></li>
+<li><a href="#9-escalation" id="toc-9-escalation">9. Escalation</a></li>
+<li><a href="#10-code-review" id="toc-10-code-review">10. Code
+review</a></li>
+<li><a href="#11-medical-device-notes"
+id="toc-11-medical-device-notes">11. Medical-device notes</a></li>
+<li><a href="#12-setup" id="toc-12-setup">12. Setup</a></li>
+<li><a href="#13-rolling-it-out" id="toc-13-rolling-it-out">13. Rolling
+it out</a></li>
+<li><a href="#14-troubleshooting-and-faq"
+id="toc-14-troubleshooting-and-faq">14. Troubleshooting and FAQ</a></li>
+<li><a href="#15-cheat-sheet" id="toc-15-cheat-sheet">15. Cheat
+sheet</a></li>
+<li><a href="#16-credits" id="toc-16-credits">16. Credits</a></li>
+</ul><p class="note" style="margin-top:14px;text-transform:none;letter-spacing:0;font-weight:400">Ticks in checklists are saved in this browser only.</p></aside>
+<main>
+<p><em>Last updated: 2026-11-20</em></p>
+<h2 id="1-what-this-is">1. What this is</h2>
+<p>This guide explains how to run software features and bug fixes
+through a staged, agent-assisted workflow in Cursor. A kit of skills,
+subagents, a hook and templates lives in your repo; you drive it with
+/wf-* commands. Every work item leaves a trail of short Markdown files
+in <code>.workflow/&lt;YYYY-MM-DD&gt;-&lt;slug&gt;/</code>. The aim is
+to let the agent do the building while you keep control of what gets
+built and what gets merged.</p>
+<p><strong>Principle: manual where you think, agentic where it
+builds.</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Who</th>
+<th>Owns</th>
+<th>In practice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>You</td>
+<td>The <strong>what</strong></td>
+<td>Spec, design, outline, final code read</td>
+</tr>
+<tr class="even">
+<td>Agent</td>
+<td>The <strong>how</strong></td>
+<td>Research, implement, test, self-review</td>
+</tr>
+<tr class="odd">
+<td>Tests</td>
+<td><strong>Done</strong></td>
+<td>A slice is done when its locked tests pass</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-the-workflow-at-a-glance">2. The workflow at a glance</h2>
+<p>A feature runs through seven stages; you hold the gates, the agent
+does the work between them.</p>
+<p><img src="../media/image1.png"
+alt="Feature track: 7 stages, 2 escalation routes" /></p>
+<p>Feature track · 7 stages, 2 escalation routes</p>
+<p>Work flows left to right, then down into the build; a hit limit, plan
+issue or BLOCKER goes to Escalate, which routes back to brainstorm
+(rethink) or plan (replan).</p>
+<table>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Stage</th>
+<th>Command</th>
+<th>Owner</th>
+<th>Input</th>
+<th>Output artifact</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Start</td>
+<td><code>/wf-start</code></td>
+<td>You (agent drafts questions)</td>
+<td>Your request or bug report</td>
+<td><code>spec.md</code> (or <code>bug-report.md</code>),
+<code>questions.md</code>, <code>.workflow/active.env</code></td>
+<td>Track chosen, spec agreed</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Research</td>
+<td><code>/wf-research</code></td>
+<td>Agent (researcher subagent)</td>
+<td><code>questions.md</code> only</td>
+<td><code>research.md</code> (facts, file:line refs, no opinions)</td>
+<td>None</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Brainstorm loop</td>
+<td><code>/wf-brainstorm</code></td>
+<td>You + agent</td>
+<td>spec, research</td>
+<td><code>design.md</code> (~200 lines)</td>
+<td><strong>You approve design</strong></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Planning loop</td>
+<td><code>/wf-plan</code></td>
+<td>Agent drafts, you approve</td>
+<td><code>design.md</code></td>
+<td><code>outline.md</code> (vertical slices)</td>
+<td><strong>You approve outline</strong> (then <code>/wf-build</code>
+sets <code>PHASE=build</code>)</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Per-slice loop</td>
+<td><code>/wf-build</code></td>
+<td>Agent; you at show-me</td>
+<td>One slice of <code>outline.md</code></td>
+<td>Locked tests, code, commits, <code>locked-tests.txt</code></td>
+<td>Tests pass, review clean, <strong>you approve show-me</strong></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>PR loop</td>
+<td><code>/wf-pr</code></td>
+<td>Agent, then you</td>
+<td>Whole branch, <code>design.md</code>, <code>decisions.md</code></td>
+<td><code>pr-description.md</code>, ranked findings</td>
+<td><strong>Your code read</strong> (agent never merges)</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Escalate</td>
+<td><code>/wf-escalate</code></td>
+<td>You</td>
+<td>A hit limit or a plan issue</td>
+<td>Dated entry in <code>decisions.md</code>, slice reverted</td>
+<td>You pick rethink or replan</td>
+</tr>
+</tbody>
+</table>
+<h3 id="definitions">Definitions</h3>
+<ul>
+<li><p><strong>Spec</strong> (<code>spec.md</code>): what you want, why,
+and how you will know it is done. Written with you at
+<code>/wf-start</code>.</p></li>
+<li><p><strong>Research</strong> (<code>research.md</code>): facts about
+the current code, with file:line references and no opinions. Written by
+the researcher subagent, which sees only <code>questions.md</code>,
+never the spec or design.</p></li>
+<li><p><strong>Design doc</strong> (<code>design.md</code>): about 200
+lines covering current state, desired end state, patterns to follow,
+decisions, open questions, and risks/hazards.</p></li>
+<li><p><strong>Outline</strong> (<code>outline.md</code>): the plan as a
+list of vertical slices.</p></li>
+<li><p><strong>Slice</strong>: one thin, end-to-end piece of work with
+an id, req IDs, acceptance criteria, tests to write, files likely
+touched and a risk flag.</p></li>
+<li><p><strong>Locked tests</strong>: tests written from a slice's
+acceptance criteria, confirmed to FAIL, then committed as
+test(&lt;slice&gt;): lock failing tests. The commit is LOCK_SHA; the
+files are listed in <code>locked-tests.txt</code>. Nobody edits or
+loosens them.</p></li>
+<li><p><strong>Stop hook</strong>:
+<code>.cursor/hooks/stop-gate.sh</code>, run by Cursor after each agent
+turn. It runs build + tests and sends the agent back to work until they
+pass, up to 5 runs.</p></li>
+<li><p><strong>Show-me</strong>: the end of each slice. The agent shows
+a summary, how to run it, the diff stat and test evidence; you approve
+before it commits.</p></li>
+<li><p><strong>Branch review</strong>: the PR-stage review of the whole
+branch diff against <code>design.md</code>, using parallel lens
+reviewers and a verify pass.</p></li>
+<li><p><strong>Escalate</strong>: stop, revert the slice, log what was
+learned, and route back to brainstorm (rethink) or plan (replan). Run
+with <code>/wf-escalate</code>.</p></li>
+<li><p><strong>Decision log</strong> (<code>decisions.md</code>): dated
+entries of trigger, what we learned, decision and affected req IDs. It
+feeds the PR description.</p></li>
+</ul>
+<h2 id="3-choosing-a-track">3. Choosing a track</h2>
+<p><code>/wf-start</code> triages every item into one of three tracks;
+you confirm the choice. When in doubt, pick the heavier track.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Signals</th>
+<th>Track</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>New behaviour, choices to make, several files or modules, req IDs to
+trace</td>
+<td><strong>Feature</strong></td>
+<td>spec → questions → research → brainstorm loop → planning loop →
+per-slice loop → PR loop</td>
+</tr>
+<tr class="even">
+<td>Existing behaviour is wrong, you can describe expected vs actual, a
+repro is possible</td>
+<td><strong>Bug</strong></td>
+<td>bug report → reproduce → failing regression test (locked) → root
+cause → you approve root cause + fix → one-slice build → PR</td>
+</tr>
+<tr class="odd">
+<td>About an hour, 1–3 files, no new behaviour worth designing</td>
+<td><strong>Small change</strong></td>
+<td>spec → one-slice outline (you approve) → build → PR</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples from device software</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Example</th>
+<th>Track</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Add a new configuration parameter for an instrument (stored,
+validated, synced, shown in the UI)</td>
+<td>Feature</td>
+<td>New behaviour across layers; design choices; several req IDs</td>
+</tr>
+<tr class="even">
+<td>A sync message is dropped after reconnect</td>
+<td>Bug</td>
+<td>Existing behaviour is wrong; reproducible; needs a root cause</td>
+</tr>
+<tr class="odd">
+<td>Fix a typo in a UI label or a log message</td>
+<td>Small change</td>
+<td>One or two files; nothing to design</td>
+</tr>
+</tbody>
+</table>
+<p>A bug whose root cause turns out to be a design flaw moves to the
+brainstorm loop (see section 5).</p>
+<h2 id="4-feature-walkthrough">4. Feature walkthrough</h2>
+<p>A feature goes from <code>/wf-start</code> to a merged PR in seven
+steps, with four points where you must approve.</p>
+<p>Every command ends by asking “Continue with the next command now?”.
+Say yes and it carries on in the same chat; say no and run the next
+command later, or in a fresh chat. It never moves on without a yes.</p>
+<ol type="1">
+<li><p><strong>Start: <code>/wf-start</code></strong></p>
+<ul>
+<li><p>You: describe the feature; confirm the Feature track; agree
+<code>spec.md</code> (what, why, done).</p></li>
+<li><p>Agent: creates the work folder, writes
+<code>.workflow/active.env</code> (WORK_DIR, TRACK, PHASE, SLICE,
+LOCK_SHA), drafts <code>questions.md</code> from the spec.</p></li>
+<li><p>Files: <code>spec.md</code>, <code>questions.md</code>.</p></li>
+</ul></li>
+<li><p><strong>Research: <code>/wf-research</code></strong></p>
+<ul>
+<li><p>You: nothing; optionally skim <code>research.md</code>.</p></li>
+<li><p>Agent: the researcher subagent gets <code>questions.md</code>
+only, so its facts are not bent towards a solution.</p></li>
+<li><p>Files: <code>research.md</code> (facts, file:line refs, no
+opinions).</p></li>
+</ul></li>
+<li><p><strong>Brainstorm loop: <code>/wf-brainstorm</code></strong></p>
+<ul>
+<li><p>You: answer one question at a time; pick between 2–3 approaches
+with trade-offs; revise until you approve.</p></li>
+<li><p>Agent: asks, proposes, drafts <code>design.md</code>. Your
+approval triggers planning.</p></li>
+<li><p>Files: <code>design.md</code>.</p></li>
+</ul></li>
+<li><p><strong>Planning loop: <code>/wf-plan</code></strong></p>
+<ul>
+<li><p>You: answer questions about gaps and choices; approve the
+outline, or say "rework" to send it back to brainstorm.</p></li>
+<li><p>Agent: drafts <code>outline.md</code>. Approval hands off to
+<code>/wf-build</code>, which sets <code>PHASE=build</code> when it
+starts, so the stop hook never fires at the end of a planning
+turn.</p></li>
+<li><p>Files: <code>outline.md</code>.</p></li>
+</ul></li>
+<li><p><strong>Per-slice loop: <code>/wf-build</code></strong> (repeat
+per slice)</p>
+<ul>
+<li><p>Agent: (a) locks failing tests and commits test(&lt;slice&gt;):
+lock failing tests; (b) implements while the stop hook runs build +
+tests after each turn; (c) gets a two-stage review from a fresh
+slice-reviewer; (d) presents show-me.</p></li>
+<li><p>You: approve show-me → agent commits → next slice.</p></li>
+<li><p>Files: <code>locked-tests.txt</code>; commits on the branch;
+<code>active.env</code> tracks SLICE and LOCK_SHA.</p></li>
+</ul></li>
+<li><p><strong>PR loop: <code>/wf-pr</code></strong></p>
+<ul>
+<li><p>Agent: writes <code>pr-description.md</code> (summary, req IDs
+covered, test evidence, decisions from the log, known risks); runs the
+branch review; fixes NITs and IMPORTANTs; escalates BLOCKERs.</p></li>
+<li><p>You: read the code; approve or send back. Nits are fixed in the
+PR.</p></li>
+<li><p>Files: <code>pr-description.md</code>.</p></li>
+</ul></li>
+<li><p><strong>Merge</strong>: you merge. The agent never
+merges.</p></li>
+</ol>
+<p>At any point a limit or plan issue can stop the loop: see sections 8
+and 9.</p>
+<h3 id="writing-a-good-spec">Writing a good spec</h3>
+<ul>
+<li><p><strong>What</strong>: the behaviour, in one or two sentences a
+tester could check.</p></li>
+<li><p><strong>Why</strong>: the user need or requirement, with req
+IDs.</p></li>
+<li><p><strong>Done</strong>: observable acceptance criteria; these
+become tests.</p></li>
+<li><p><strong>Constraints</strong>: platforms, timing, memory,
+interfaces you must not break, standards.</p></li>
+<li><p><strong>Out of scope</strong>: what this item will not do. This
+stops the agent from "helpfully" growing the change.</p></li>
+</ul>
+<h3 id="approving-the-design-doc">Approving the design doc</h3>
+<ul>
+<li><p>Current state matches <code>research.md</code>, not
+guesses.</p></li>
+<li><p>Desired end state is concrete enough to test.</p></li>
+<li><p>Patterns to follow point to real code in the repo.</p></li>
+<li><p>Each decision says why; rejected options are named.</p></li>
+<li><p>Open questions are answered or explicitly deferred.</p></li>
+<li><p>Risks/hazards cover safety, concurrency and error paths.</p></li>
+<li><p>It is short (about 200 lines). Long means unclear.</p></li>
+</ul>
+<h3 id="approving-the-outline">Approving the outline</h3>
+<ul>
+<li><p>Slices are <strong>vertical</strong>: each cuts through every
+layer it needs and can be run, not "all the data layer first".</p></li>
+<li><p><strong>Slice 1 is a thin end-to-end slice</strong> that proves
+the path works.</p></li>
+<li><p>Every slice has an id, req IDs, acceptance criteria, tests to
+write, files likely touched and a risk flag.</p></li>
+<li><p>Every req ID in the spec is covered by at least one
+slice.</p></li>
+<li><p>Tests are named per slice and test behaviour, not
+internals.</p></li>
+<li><p>Risky slices are flagged so you know where to look hardest at
+show-me.</p></li>
+</ul>
+<h2 id="5-bug-walkthrough">5. Bug walkthrough</h2>
+<p>A bug goes from report to PR through a locked regression test and a
+root cause you approve; there is no design or outline stage unless the
+root cause demands one.</p>
+<ol type="1">
+<li><p><strong><code>/wf-start</code> (bug)</strong>: you and the agent
+write <code>bug-report.md</code> in place of <code>spec.md</code>: what
+happens, what should happen, how to trigger it, req IDs affected. The
+agent drafts <code>questions.md</code>.</p></li>
+<li><p><strong>Reproduce</strong> (<code>/wf-debug</code>): the agent
+reproduces the failure and records how.</p></li>
+<li><p><strong>Lock a failing regression test</strong>: the agent writes
+a test that shows the bug, runs it, confirms it <strong>fails</strong>,
+and commits test(&lt;slice&gt;): lock failing tests. LOCK_SHA and
+<code>locked-tests.txt</code> are recorded.</p></li>
+<li><p><strong>Root cause with evidence</strong>: logs, traces,
+file:line references and the chain from cause to symptom. No
+guesses.</p></li>
+<li><p><strong>You approve root cause + fix approach.</strong> This is
+the bug track's design gate.</p></li>
+<li><p><strong>One-slice build loop</strong> (<code>/wf-build</code>):
+implement, stop hook, two-stage review, show-me, commit.</p></li>
+<li><p><strong>PR loop</strong> (<code>/wf-pr</code>): PR description,
+branch review, your code read.</p></li>
+</ol>
+<p><strong>Example</strong>: a sync message is dropped after reconnect.
+The locked test reconnects a session and asserts the queued message
+arrives; it fails today. The root cause might be a send queue cleared on
+reconnect, shown by a trace and the line that clears it.</p>
+<p><strong>Bounce to brainstorm when</strong> the root cause is a design
+flaw: for example, two components own the same state, or the protocol
+cannot express the case. Run <code>/wf-escalate</code>, log it, and
+continue on the Feature path from <code>/wf-brainstorm</code>.</p>
+<p><strong>Rules</strong></p>
+<ul>
+<li><p>No fix without a root cause.</p></li>
+<li><p>The regression test must fail before the fix, and pass after
+it.</p></li>
+<li><p>The regression test is locked: never edited or loosened to make
+it pass.</p></li>
+</ul>
+<h2 id="6-small-change-walkthrough">6. Small change walkthrough</h2>
+<p>A small change skips research, brainstorm and design, but keeps an
+approved outline, the build loop and the PR loop.</p>
+<p><strong>Fits when</strong>: about an hour of work, 1–3 files, no new
+behaviour worth designing. Example: a typo in a UI label or a log
+message.</p>
+<ol type="1">
+<li><p><code>/wf-start</code>: confirm Small change; agree a short
+<code>spec.md</code>.</p></li>
+<li><p><code>/wf-plan</code>: the agent writes a one-slice
+<code>outline.md</code>; <strong>you approve</strong> it.</p></li>
+<li><p><code>/wf-build</code>: lock tests, implement, review, show-me,
+commit.</p></li>
+<li><p><code>/wf-pr</code>: PR description, branch review, your code
+read.</p></li>
+</ol>
+<p>If the work grows past 1–3 files or turns up a real design choice,
+escalate and move it to the Feature track.</p>
+<h2 id="7-gates-and-loops">7. Gates and loops</h2>
+<p>There are four human gates; each has a short checklist. The agent-run
+loops between them (implement, slice review, PR fixes) are bounded by
+limits (section 8).</p>
+<p><strong>Design gate</strong> (end of <code>/wf-brainstorm</code>)</p>
+<ul class="task-list">
+<li><p><label><input type="checkbox" />Desired end state is concrete and
+testable</label></p></li>
+<li><p><label><input type="checkbox" />Decisions have reasons; rejected
+options named</label></p></li>
+<li><p><label><input type="checkbox" />Risks/hazards listed, including
+safety and concurrency</label></p></li>
+<li><p><label><input type="checkbox" />Open questions answered or
+consciously deferred</label></p></li>
+<li><p><label><input type="checkbox" />About 200 lines, readable in one
+sitting</label></p></li>
+</ul>
+<p><strong>Outline gate</strong> (end of <code>/wf-plan</code>)</p>
+<ul class="task-list">
+<li><p><label><input type="checkbox" />Vertical slices; slice 1 is a
+thin end-to-end slice</label></p></li>
+<li><p><label><input type="checkbox" />Each slice: id, req IDs,
+acceptance criteria, tests, files, risk flag</label></p></li>
+<li><p><label><input type="checkbox" />Every spec req ID is
+covered</label></p></li>
+<li><p><label><input type="checkbox" />More than 3 planning rounds?
+Revisit the spec instead</label></p></li>
+</ul>
+<p><strong>Show-me gate</strong> (end of each slice in
+<code>/wf-build</code>)</p>
+<ul class="task-list">
+<li><p><label><input type="checkbox" />Summary matches the slice in
+<code>outline.md</code></label></p></li>
+<li><p><label><input type="checkbox" />You ran it, or the "how to run"
+steps are credible</label></p></li>
+<li><p><label><input type="checkbox" />Diff stat is about the size you
+expected; no surprise files</label></p></li>
+<li><p><label><input type="checkbox" />Test evidence: locked tests
+failed before, pass now</label></p></li>
+<li><p><label><input type="checkbox" />No changes to files in
+<code>locked-tests.txt</code> since LOCK_SHA</label></p></li>
+</ul>
+<p><strong>Final code read</strong> (end of <code>/wf-pr</code>)</p>
+<ul class="task-list">
+<li><p><label><input type="checkbox" />PR description lists req IDs
+covered, test evidence, decisions, known risks</label></p></li>
+<li><p><label><input type="checkbox" />Branch review findings resolved;
+no open BLOCKER</label></p></li>
+<li><p><label><input type="checkbox" />Code reads clearly; error paths
+handled</label></p></li>
+<li><p><label><input type="checkbox" />Matches <code>design.md</code>;
+any drift is in <code>decisions.md</code></label></p></li>
+<li><p><label><input type="checkbox" />You merge; the agent never
+does</label></p></li>
+</ul>
+<p>Ticks in this doc are shared; copy a list into your notes or PR to
+use it per item.</p>
+<h2 id="8-iteration-limits">8. Iteration limits</h2>
+<p>Every agent loop has a hard limit; hitting it means escalate, not try
+harder.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Loop</th>
+<th>Limit</th>
+<th>On limit</th>
+<th>Enforced by</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Implement (stop hook)</td>
+<td>5 runs</td>
+<td>Escalate</td>
+<td>Hook (loop_count)</td>
+</tr>
+<tr class="even">
+<td>Slice review → fix</td>
+<td>3 rounds</td>
+<td>Escalate</td>
+<td>wf-build skill</td>
+</tr>
+<tr class="odd">
+<td>PR fix → re-run</td>
+<td>2 rounds</td>
+<td>Escalate</td>
+<td>wf-pr skill</td>
+</tr>
+<tr class="even">
+<td>Brainstorm, planning</td>
+<td>None (you are in it)</td>
+<td>More than 3 planning rounds: revisit the spec</td>
+<td>You</td>
+</tr>
+</tbody>
+</table>
+<p>The numbers live in <code>.cursor/workflow.env</code> as
+MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2.
+<code>.cursor/hooks.json</code> sets the hook's loop_limit to 6 as a
+backstop above MAX_STOP_RUNS.</p>
+<p><strong>Never keep going past a limit. Never edit or loosen a locked
+test.</strong> A limit hit is information: the plan, the design or the
+spec is wrong somewhere, and more attempts will hide that.</p>
+<h2 id="9-escalation">9. Escalation</h2>
+<p>Escalation is the planned exit from a loop that is not converging:
+revert, record what you learned, and go back to design or planning.</p>
+<p><strong>When it fires</strong></p>
+<ul>
+<li><p>A loop limit is hit (stop hook 5 runs, slice review 3 rounds, PR
+fixes 2 rounds).</p></li>
+<li><p>Slice review finds a plan issue, not a code issue.</p></li>
+<li><p>You reject at show-me because the slice is wrong, not just
+unfinished.</p></li>
+<li><p>Branch review finds a BLOCKER.</p></li>
+<li><p>Your code read finds something the design or outline should have
+caught.</p></li>
+</ul>
+<p><strong>What <code>/wf-escalate</code> does</strong></p>
+<ol type="1">
+<li><p>Sets <code>PHASE=escalated</code> in
+<code>.workflow/active.env</code>.</p></li>
+<li><p>Proposes the git commands to revert the slice; <strong>you
+confirm</strong> before anything runs.</p></li>
+<li><p>Appends a dated entry to <code>decisions.md</code>.</p></li>
+<li><p>Routes back to <code>/wf-brainstorm</code> (rethink) or
+<code>/wf-plan</code> (replan), as you choose.</p></li>
+</ol>
+<p><strong>Rethink or replan?</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Choose</th>
+<th>When the problem is</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Rethink</strong> → brainstorm</td>
+<td>The approach or design is wrong; a hazard or constraint was missed;
+a bug's root cause is a design flaw</td>
+<td>Config apply and sync both own the device profile with no locking
+strategy</td>
+</tr>
+<tr class="even">
+<td><strong>Replan</strong> → plan</td>
+<td>The design holds but the slicing is wrong: a slice too big, wrong
+order, missing slice, wrong tests</td>
+<td>Slice 3 needs a schema change that slice 2 should have made</td>
+</tr>
+</tbody>
+</table>
+<p>If you cannot tell, rethink: a cheap design check beats a second
+failed plan.</p>
+<p><strong>Decision-log entry format</strong>
+(<code>decisions.md</code>)</p>
+<p>## 2026-11-20 — Escalation: slice 3 review limit</p>
+<ul>
+<li>Trigger: slice review → fix hit 3 rounds; reviewer flagged a plan
+issue</li>
+<li>What we learned: profile writes and sync reads race; design had no
+ownership rule</li>
+<li>Decision: rethink; add a single-writer rule for the device profile
+to <code>design.md</code></li>
+<li>Affected req IDs: CFG-12, CFG-14</li>
+</ul>
+<h2 id="10-code-review">10. Code review</h2>
+<p>Review happens twice: per slice to catch local mistakes early, and on
+the whole branch to catch what only shows when slices meet.</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Per-slice review (<code>/wf-build</code>)</th>
+<th>Branch review (<code>/wf-pr</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reviewer</td>
+<td>Fresh slice-reviewer subagent (read-only)</td>
+<td>Parallel lens-reviewer subagents + finding-verifier (read-only)</td>
+</tr>
+<tr class="even">
+<td>Compares against</td>
+<td>The slice in <code>outline.md</code></td>
+<td><code>design.md</code></td>
+</tr>
+<tr class="odd">
+<td>Scope</td>
+<td>One slice's diff</td>
+<td>Whole branch diff</td>
+</tr>
+<tr class="even">
+<td>Stages</td>
+<td>1: spec compliance; 2: code quality</td>
+<td>Lenses → verify → rank</td>
+</tr>
+<tr class="odd">
+<td>On a code issue</td>
+<td>Fix, max 3 rounds</td>
+<td>NIT: fix. IMPORTANT: fix, max 2 rounds</td>
+</tr>
+<tr class="even">
+<td>On a plan issue / BLOCKER</td>
+<td>Escalate</td>
+<td>Escalate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-six-methods-of-branch-review">The six methods of branch
+review</h3>
+<ol type="1">
+<li><p><strong>Whole branch vs design</strong>: review the full diff
+against <code>design.md</code>, not slice by slice. Cross-slice
+interactions only show here.</p></li>
+<li><p><strong>Parallel narrow lenses</strong>: one lens-reviewer per
+lens: safety/hazard, concurrency, error handling, compatibility/config,
+traceability + test adequacy. A narrow brief finds more than one broad
+one.</p></li>
+<li><p><strong>Verify pass</strong>: finding-verifier keeps only
+findings with a concrete failure scenario. This cuts noise before you
+see it.</p></li>
+<li><p><strong>Severity ranking</strong>: BLOCKER / IMPORTANT / NIT,
+each with its own rule (fix, fix within 2 rounds, or escalate).</p></li>
+<li><p><strong>A second model</strong>: for high-risk changes, run the
+review again with a different model selected in Cursor; different models
+miss different things.</p></li>
+<li><p><strong>Test adequacy</strong>: check that tests would fail if
+the behaviour broke, and that every req ID has a test.</p></li>
+</ol>
+<h3 id="example-finding-illustrative">Example finding
+(illustrative)</h3>
+<blockquote>
+<p><strong>BLOCKER · concurrency · verified</strong> —
+ConfigStore::apply() (slice 2) writes the device profile while
+SyncSession::send() (slice 4) can read it. Each slice passed review
+alone. Failure: a sync during apply sends a half-old, half-new config.
+Req CFG-12.</p>
+</blockquote>
+<p>This is a made-up example to show the format. Note the parts:
+severity, lens, verified, the code locations and slices, why per-slice
+review missed it, a concrete failure scenario, and the req ID. A BLOCKER
+like this goes to <code>/wf-escalate</code>, usually as a rethink.</p>
+<h2 id="11-medical-device-notes">11. Medical-device notes</h2>
+<p>The workflow produces evidence that fits a regulated process, but it
+does not make anything compliant by itself.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Practice</th>
+<th>What the kit gives you</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Traceability</strong></td>
+<td>Req IDs on every slice in <code>outline.md</code>, on the tests
+written for it, and in the PR description's "req IDs covered"</td>
+</tr>
+<tr class="even">
+<td><strong>Executable spec</strong></td>
+<td>Locked tests: written from acceptance criteria, shown to fail first,
+committed at LOCK_SHA, never loosened</td>
+</tr>
+<tr class="odd">
+<td><strong>Audit trail</strong></td>
+<td><code>decisions.md</code>: dated entries of trigger, what was
+learned, decision and affected req IDs; summarised in the PR</td>
+</tr>
+<tr class="even">
+<td><strong>Human design control</strong></td>
+<td>Design approval (or root-cause approval for bugs) is a mandatory
+human gate</td>
+</tr>
+<tr class="odd">
+<td><strong>Human code review</strong></td>
+<td>Your PR code read is mandatory; the agent never merges</td>
+</tr>
+<tr class="even">
+<td><strong>Risk visibility</strong></td>
+<td>Risks/hazards section in <code>design.md</code>; risk flag per
+slice; a safety/hazard lens in branch review</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Map it to your own process.</strong> Work with your QA team
+to map each stage and artifact onto your SDLC procedures (for example,
+IEC 62304 activities for software development planning, requirements,
+design, verification and problem resolution). Decide together which
+.workflow/ files are records, where they are archived, and who signs
+what. Treat agent output as a draft that a qualified engineer reviews,
+as you would any other tool output.</p>
+<h2 id="12-setup">12. Setup</h2>
+<p>Setup is a copy, two settings and a permission change.</p>
+<ol type="1">
+<li><p><strong>Copy the kit into the repo root.</strong> It adds:</p>
+<ul>
+<li><p><code>.cursor/skills/</code> — wf-start, wf-research,
+wf-brainstorm, wf-plan, wf-build, wf-debug, wf-escalate, wf-pr (each a
+folder with <code>SKILL.md</code>)</p></li>
+<li><p><code>.cursor/agents/</code> — <code>researcher.md</code>,
+<code>slice-reviewer.md</code>, <code>lens-reviewer.md</code>,
+<code>finding-verifier.md</code> (all readonly: true)</p></li>
+<li><p><code>.cursor/hooks.json</code> and
+<code>.cursor/hooks/stop-gate.sh</code></p></li>
+<li><p><code>.cursor/workflow.env</code></p></li>
+<li><p><code>.cursor/rules/agentic-workflow.mdc</code> (always-apply
+rule)</p></li>
+<li><p><code>.workflow/templates/</code> — <code>spec.md</code>,
+<code>bug-report.md</code>, <code>design.md</code>,
+<code>outline.md</code>, <code>decisions.md</code>,
+<code>pr-description.md</code></p></li>
+<li><p><code>README.md</code>,
+<code>THIRD-PARTY-NOTICES.md</code></p></li>
+</ul></li>
+<li><p><strong>Set BUILD_CMD and TEST_CMD</strong> in
+<code>.cursor/workflow.env</code> to your project's build and test
+commands. Leave the MAX_* limits at their defaults to start.</p></li>
+<li><p><strong>Make the hook executable</strong>: <code>chmod +x</code>
+<code>.cursor/hooks/stop-gate.sh</code>.</p></li>
+<li><p><strong>Windows</strong>: the hook runs as bash
+<code>.cursor/hooks/stop-gate.sh</code>, so you need Git Bash or WSL
+with bash on the PATH Cursor uses. Also needed everywhere: Cursor 2.4 or
+later (skills and custom subagents arrived in 2.4), and a trusted
+workspace (Cursor runs project hooks only there); an enterprise admin
+can restrict hooks, skills or subagents.</p></li>
+<li><p><strong>Commit the kit</strong> so the whole team gets the same
+workflow.</p></li>
+</ol>
+<h3 id="first-run-checklist">First-run checklist</h3>
+<ul class="task-list">
+<li><p><label><input type="checkbox" />BUILD_CMD and TEST_CMD each run
+cleanly from the repo root in a terminal</label></p></li>
+<li><p><label><input type="checkbox" />Typing /wf- in Cursor chat lists
+the eight skills</label></p></li>
+<li><p><label><input type="checkbox" />The four subagents appear in
+Cursor</label></p></li>
+<li><p><label><input type="checkbox" />Pick a Small change; run
+<code>/wf-start</code> and see
+<code>.workflow/&lt;YYYY-MM-DD&gt;-&lt;slug&gt;/</code> and
+<code>.workflow/active.env</code> appear</label></p></li>
+<li><p><label><input type="checkbox" />During <code>/wf-build</code>,
+the stop hook runs build + tests after an agent turn</label></p></li>
+<li><p><label><input type="checkbox" />Locked tests commit appears as
+test(&lt;slice&gt;): lock failing tests</label></p></li>
+<li><p><label><input type="checkbox" />Decide with your team whether
+.workflow/ work folders are committed or archived
+elsewhere</label></p></li>
+</ul>
+<h2 id="13-rolling-it-out">13. Rolling it out</h2>
+<p>Start strict and relax only when the numbers say the agent has earned
+it.</p>
+<ol type="1">
+<li><p><strong>Phase 1 — show-me on every slice.</strong> Pick a few
+small changes and bugs first, then a feature. Read every show-me
+closely.</p></li>
+<li><p><strong>Phase 2 — "slice 1 + triggers".</strong> Once escalations
+per item are falling, do show-me on slice 1 (the thin end-to-end slice)
+and on any slice that trips a trigger: a risk flag, a review fix round,
+or a stop-hook run count near the limit. The design gate and the final
+code read never relax.</p></li>
+<li><p><strong>Review the numbers monthly</strong> and move back to
+Phase 1 if they get worse.</p></li>
+</ol>
+<table>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>What it tells you</th>
+<th>Good direction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Escalations per item</td>
+<td>Whether designs and outlines are good enough to build from</td>
+<td>Down</td>
+</tr>
+<tr class="even">
+<td>Rework after PR (changes asked at your code read or after
+merge)</td>
+<td>Whether gates are catching problems early</td>
+<td>Down</td>
+</tr>
+<tr class="odd">
+<td>Time from approved outline to PR</td>
+<td>Whether the build loop is flowing</td>
+<td>Down, without the other two rising</td>
+</tr>
+</tbody>
+</table>
+<h2 id="14-troubleshooting-and-faq">14. Troubleshooting and FAQ</h2>
+<p>Most problems come from setup, a skipped gate, or a context that has
+grown too long.</p>
+<p><strong>The stop hook doesn't fire.</strong> Check
+<code>.cursor/hooks.json</code> exists at the repo root and points stop
+at <code>.cursor/hooks/stop-gate.sh</code>; check the script is
+executable (<code>chmod +x</code>); check the workspace is trusted and
+Cursor is 2.4 or later; on Windows, check Git Bash or WSL is installed.
+Run BUILD_CMD and TEST_CMD by hand to confirm they work.</p>
+<p><strong>The agent edited a locked test.</strong> Stop. Revert the
+test to LOCK_SHA (the files are listed in
+<code>locked-tests.txt</code>). If the test really is wrong, that is a
+plan issue: run <code>/wf-escalate</code>, record it in
+<code>decisions.md</code>, and re-lock in the next pass.</p>
+<p><strong>Review keeps looping.</strong> The limits stop it (3 rounds
+per slice, 2 at PR). If you reach them often, the slices are too big or
+the acceptance criteria are vague: replan with smaller slices and
+sharper criteria.</p>
+<p><strong>The agent skips asking questions.</strong> Say so and restart
+the stage: <code>/wf-brainstorm</code> should ask one question at a
+time. Check <code>spec.md</code> has real open points; a spec that
+answers everything leaves nothing to ask.</p>
+<p><strong>The context is getting long or the agent is losing
+track.</strong> Start a new chat per phase. State lives in
+<code>.workflow/active.env</code> and the work folder, so the next
+command picks up where you left off.</p>
+<p><strong>My Cursor version doesn't show skills, subagents or
+hooks.</strong> The kit uses <code>.cursor/skills</code>,
+<code>.cursor/agents</code> and <code>hooks.json</code> (v1, stop hook
+with followup_message and loop_count). Update Cursor to a version that
+supports them; check the Cursor docs for each feature.</p>
+<p><strong>The researcher's output is opinionated or vague.</strong> It
+should only see <code>questions.md</code>. Rewrite the questions as
+factual ones ("where is X handled?", "what calls Y?") and re-run
+<code>/wf-research</code>.</p>
+<p><strong>I want to change the design halfway through the
+build.</strong> Run <code>/wf-escalate</code> and choose rethink. Don't
+edit <code>design.md</code> silently: the decision log is how reviewers
+and auditors see why it changed.</p>
+<h2 id="15-cheat-sheet">15. Cheat sheet</h2>
+<p>One page: commands per track, who acts at each gate, and the
+limits.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Track</th>
+<th>Commands in order</th>
+<th>Your gates</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Feature</strong></td>
+<td><code>/wf-start</code> → <code>/wf-research</code> →
+<code>/wf-brainstorm</code> → <code>/wf-plan</code> →
+<code>/wf-build</code> (per slice) → <code>/wf-pr</code></td>
+<td>Spec, design, outline, show-me, code read</td>
+</tr>
+<tr class="even">
+<td><strong>Bug</strong></td>
+<td><code>/wf-start</code> (bug) → <code>/wf-debug</code> (reproduce,
+lock failing test, root cause) → <code>/wf-build</code> (one slice) →
+<code>/wf-pr</code></td>
+<td>Root cause + fix, show-me, code read</td>
+</tr>
+<tr class="odd">
+<td><strong>Small change</strong></td>
+<td><code>/wf-start</code> → <code>/wf-plan</code> (one slice) →
+<code>/wf-build</code> → <code>/wf-pr</code></td>
+<td>Outline, show-me, code read</td>
+</tr>
+<tr class="even">
+<td><strong>Any, when stuck</strong></td>
+<td><code>/wf-escalate</code> → <code>/wf-brainstorm</code> (rethink) or
+<code>/wf-plan</code> (replan)</td>
+<td>Confirm revert, choose route</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th>Limit</th>
+<th>Value</th>
+<th>Then</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stop hook runs</td>
+<td>5</td>
+<td>Escalate</td>
+</tr>
+<tr class="even">
+<td>Slice review → fix</td>
+<td>3 rounds</td>
+<td>Escalate</td>
+</tr>
+<tr class="odd">
+<td>PR fix → re-run</td>
+<td>2 rounds</td>
+<td>Escalate</td>
+</tr>
+<tr class="even">
+<td>Planning rounds</td>
+<td>More than 3</td>
+<td>Revisit the spec</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>Per slice</strong>: lock failing tests → implement (stop
+hook) → two-stage review → show-me → commit.</p></li>
+<li><p><strong>Branch review</strong>: lenses → verify → rank. NIT: fix.
+IMPORTANT: fix (2 rounds). BLOCKER: escalate.</p></li>
+<li><p><strong>Always</strong>: never loosen a locked test; never go
+past a limit; the agent never merges.</p></li>
+<li><p><strong>Files</strong>:
+<code>.workflow/&lt;YYYY-MM-DD&gt;-&lt;slug&gt;/</code> —
+<code>spec.md</code> or <code>bug-report.md</code>,
+<code>questions.md</code>, <code>research.md</code>,
+<code>design.md</code>, <code>outline.md</code>,
+<code>decisions.md</code>, <code>pr-description.md</code>,
+<code>locked-tests.txt</code>. Pointer:
+<code>.workflow/active.env</code>.</p></li>
+</ul>
+<h2 id="16-credits">16. Credits</h2>
+<ul>
+<li><p>Brainstorming, planning, build loop, TDD, debugging and review
+skills are adapted from <a
+href="https://github.com/obra/superpowers">obra/superpowers</a> v7.0.2
+(MIT, © 2025 Jesse Vincent). See <code>THIRD-PARTY-NOTICES.md</code> in
+the kit.</p></li>
+<li><p>The research → plan → implement structure and the short
+design/outline artifacts follow HumanLayer's RPI/CRISPY
+lessons.</p></li>
+<li><p>Hooks, skills and subagents follow the Cursor docs:
+<code>hooks.json</code> v1, the stop hook's followup_message and
+loop_count, skills in <code>.cursor/skills</code>, subagents in
+<code>.cursor/agents</code>.</p></li>
+</ul>
+</main>
+</div>
+<script>
+// highlight /wf-* commands
+document.querySelectorAll('main code').forEach(c => { if (/^\/wf-/.test(c.textContent)) c.classList.add('wf'); });
+// copy buttons on code blocks
+document.querySelectorAll('pre').forEach(p => { const b = document.createElement('button'); b.className = 'copy'; b.type = 'button'; b.textContent = 'Copy';
+  b.onclick = () => navigator.clipboard?.writeText(p.innerText.replace(/Copy$/, '').trim()).then(() => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1200); });
+  p.appendChild(b); });
+// checklists: make ticks usable and remember them locally
+document.querySelectorAll('main input[type=checkbox]').forEach((cb, i) => { cb.disabled = false; const k = 'gaw-guide-cb-' + i;
+  try { cb.checked = localStorage.getItem(k) === '1'; } catch (e) {}
+  cb.addEventListener('change', () => { try { localStorage.setItem(k, cb.checked ? '1' : '0'); } catch (e) {} }); });
+// scrollspy for the contents
+const links = [...document.querySelectorAll('aside.toc a')], map = new Map(links.map(a => [decodeURIComponent(a.hash.slice(1)), a]));
+const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.classList.remove('active')); map.get(e.target.id)?.classList.add('active'); } }),
+  { rootMargin: '0px 0px -70% 0px' });
+document.querySelectorAll('main h2[id], main h3[id], main section[id]').forEach(h => obs.observe(h));
+</script>
+</body>
+</html>

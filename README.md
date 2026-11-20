@@ -6,9 +6,10 @@ fixes. Built for regulated (medical-device) software, where traceability and hum
 
 ![Feature track: you approve at each gate; the agent builds between them](docs/media/image1.png)
 
-- **Guide:** [docs/guide.md](docs/guide.md) (also as [Word](docs/guide.docx)) - tracks, walkthroughs, gates, limits, setup, FAQ.
-- **Cheat sheet:** [docs/cheatsheet.pdf](docs/cheatsheet.pdf) - one printable page with every command ([HTML source](docs/cheatsheet.html)).
-- **Slides:** [docs/slides.pdf](docs/slides.pdf) - a 16-slide overview to present the workflow to a team.
+- **Docs site:** [robbietuk.github.io/gated-agent-workflow](https://robbietuk.github.io/gated-agent-workflow/) - the guide, slides and cheat sheet as web pages (sources in [`docs/`](docs)).
+- **Guide:** [docs/guide/index.html](docs/guide/index.html) (Markdown source: [docs/guide.md](docs/guide.md)) - tracks, walkthroughs, gates, limits, setup, FAQ.
+- **Slides:** [docs/slides/index.html](docs/slides/index.html) - 17 slides with speaker notes; arrow keys to move.
+- **Cheat sheet:** [docs/cheatsheet.html](docs/cheatsheet.html) - one printable page with every command.
 - **Kit:** everything under [`.cursor/`](.cursor) and [`.workflow/templates/`](.workflow/templates) - copy into your repo root.
 
 > Status: the formats follow Cursor's documentation (Cursor 2.4+), and the stop hook has a self-test
