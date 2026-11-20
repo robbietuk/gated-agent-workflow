@@ -1,0 +1,27 @@
+---
+description: Agentic workflow kit - guardrails for every agent turn (artifacts, limits, locked tests, escalation)
+alwaysApply: true
+---
+
+# Agentic workflow guardrails
+
+Principle: manual where the user thinks, agentic where it builds. The user owns the what (spec, design,
+outline, final code read); you own the how (research, implement, test, self-review); tests decide when a
+slice is done.
+
+- **Artifacts live in `.workflow/`.** The active work item is in `.workflow/active.env`
+  (`WORK_DIR`, `TRACK` feature|bug|small, `PHASE` start|research|brainstorm|plan|build|pr|escalated,
+  `SLICE`, `LOCK_SHA`). Read it before acting on any `/wf-*` command. Write it as plain `KEY=value` lines.
+- **Never edit, delete, skip or loosen a locked test** (files in `$WORK_DIR/locked-tests.txt`). If a locked
+  test looks wrong, stop and run `/wf-escalate`. Fix the code, not the tests.
+- **Respect the limits** in `.cursor/workflow.env`: stop-hook runs `MAX_STOP_RUNS` (5), slice review rounds
+  `MAX_REVIEW_ROUNDS` (3), PR fix rounds `MAX_PR_FIX_ROUNDS` (2). On a limit: `/wf-escalate`. Never "one more try".
+- **Plan issues escalate; code issues get fixed.** If the outline, design or a requirement is wrong, do not
+  improvise a new plan inside a build or PR loop: run `/wf-escalate`.
+- **Evidence before claims.** Never say tests pass, a bug is fixed or a slice is done without fresh command
+  output from this turn.
+- **Stay inside the current slice.** Touch only what its acceptance criteria need; no drive-by refactors.
+- **Traceability.** Keep requirement / hazard IDs on slices, tests, commits and the PR description.
+- **Never** merge, push, force-push, `reset --hard`, `clean`, or delete branches without the user asking
+  for that exact action in this conversation.
+- Every `/wf-*` skill ends by updating `PHASE` and telling the user the next command.

@@ -1,0 +1,3 @@
+# Local workflow state (per developer)
+.workflow/active.env
+.workflow/*/last-run.log

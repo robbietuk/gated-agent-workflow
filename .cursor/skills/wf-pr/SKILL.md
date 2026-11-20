@@ -1,0 +1,64 @@
+---
+name: wf-pr
+description: PR loop of the agentic workflow. Use when the user runs /wf-pr after all slices are done (PHASE=pr). Writes pr-description.md, runs a whole-branch review with parallel lens-reviewer subagents and a finding-verifier, fixes NIT/IMPORTANT findings (max 2 rounds), escalates BLOCKERs, then hands the branch to the user for their code read. Never merges or pushes unless the user asks.
+---
+
+# wf-pr: describe, review the whole branch, hand over
+
+Slice reviews were scoped gates. This is the one broad look at the whole branch against the design,
+through the lenses that matter for device software, before a human reads it.
+
+## Preconditions
+- Read `.workflow/active.env`, `.cursor/workflow.env`, `outline.md` (every slice `done`), `design.md` (or
+  `spec.md` / `bug-report.md`), `decisions.md`, `locked-tests.txt`. Set `PHASE=pr`.
+- Any slice not `done`: stop, "Run `/wf-build`."
+- Base branch: from the user or the branch's upstream; if unsure, ask once.
+  `MERGE_BASE=$(git merge-base <base> HEAD)`.
+- **Fresh evidence:** run `BUILD_CMD` and `TEST_CMD` now (the stop hook is silent in this phase) and check
+  `git diff --name-only <LOCK_SHA> -- <locked files>` is empty. Red? Stop: report it, and `/wf-escalate`
+  if it is not a trivial fix.
+
+## a. PR description
+Fill `$WORK_DIR/pr-description.md` from `.workflow/templates/pr-description.md`: summary, req/hazard IDs
+-> slice -> tests table, changes, test evidence (command, counts, commit, date), decisions summarised from
+`decisions.md`, known risks and follow-ups, reviewer guide. Facts only; every claim backed by the run above.
+
+## b. Branch code review
+Read `references/branch-review.md` for the dispatch prompts and ranking rules.
+1. Invoke **five `lens-reviewer` subagents in parallel**, one per lens: `safety-hazard`, `concurrency`,
+   `error-handling`, `compatibility-config`, `traceability-tests`. Each prompt is self-contained: lens,
+   MERGE_BASE, HEAD, artifact paths, the req/hazard IDs, and parked Minor notes from outline.md.
+   Skip a lens only if it clearly cannot apply (e.g. no threads anywhere in the diff) and say so.
+2. Invoke the **`finding-verifier`** subagent with all lens findings verbatim. Keep only its KEPT list.
+3. Act on the ranked findings:
+   - **NIT:** fix.
+   - **IMPORTANT:** fix. One fix round = fix all open IMPORTANT/NIT findings, re-run `BUILD_CMD` +
+     `TEST_CMD`, then re-run only the lenses that raised them, scoped to the fix diff. Count rounds in
+     `pr-description.md` ("PR fix rounds: n/2"). Still open after `MAX_PR_FIX_ROUNDS` (2): `/wf-escalate`
+     (reason "PR-fix cap").
+   - **BLOCKER:** do not fix in the PR loop. `/wf-escalate` (reason "branch review BLOCKER").
+   - Any fix that would touch a locked test, or change the design or outline, is a BLOCKER.
+4. Commit review fixes locally as separate commits: `fix(review): <what> [<req IDs>]`. Update the
+   "Branch review" section of the PR description with what was fixed and what is open.
+
+## c. The user's code read
+Hand over: the PR description path, `git log --oneline MERGE_BASE..HEAD`, `git diff --stat MERGE_BASE`,
+the fresh test evidence, the review summary (fixed / open), and where to start reading. Then **stop and
+wait**. The user:
+- **Approves** -> dated `decisions.md` entry "PR approved for submission". Offer the next steps (push the
+  branch, open the PR with pr-description.md as the body) and do them **only if the user asks**.
+  `PHASE` stays `pr`; the work item is complete.
+- **Sends back nits** -> fix them in the PR (verify, commit, show again). These do not count as rounds.
+- **Sends back anything bigger** -> `/wf-escalate` (reason "code read").
+
+## End of every invocation
+Say where things stand (review status, rounds used, open findings) and the next step: wait for code read,
+`/wf-pr` again after fixes, or `/wf-escalate`.
+
+## Never
+- Merge, push, force-push, rebase or open a PR without the user asking for that action.
+- Claim "ready" without a fresh green run in this turn.
+- Downgrade a BLOCKER to keep the loop going, or drop a finding silently.
+
+Adapted from obra/superpowers requesting-code-review, subagent-driven-development (final review) and
+finishing-a-development-branch (MIT).
