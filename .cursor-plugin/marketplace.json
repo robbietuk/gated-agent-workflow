@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Cursor plugin for a gated, mostly agentic coding workflow.",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
