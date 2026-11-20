@@ -4,6 +4,7 @@ description: Fresh, read-only two-stage reviewer for ONE slice in /wf-build. Sta
 model: inherit
 readonly: true
 tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, NotebookEdit
 is_background: false
 ---
 

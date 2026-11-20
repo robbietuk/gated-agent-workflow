@@ -11,11 +11,13 @@ production code until they pass.
 ## Preconditions
 - Read `.workflow/active.env` (`WORK_DIR`, `TRACK`, `PHASE`, `SLICE`, `LOCK_SHA`), `.workflow/config.env`,
   `outline.md` (must be `approved`), `design.md` or `spec.md` / `bug-report.md`, `decisions.md`.
-- `PHASE` must be `build`, or `plan` with `outline.md` marked `approved`; in that case set `PHASE=build`
-  now. Anything else: say which command comes first and stop.
+- `PHASE` must be `build`, or `plan` with `outline.md` marked `approved`. Anything else: say which command
+  comes first and stop. Do not change `PHASE` yet.
 - Baseline (first slice only): run `TEST_CMD` once before writing anything. If tests other than this work
   item's locked tests already fail, stop and tell the user: a red baseline would burn the stop-hook budget.
 - `TEST_CMD` must be set. If empty, ask the user for it and stop.
+- Only now, with the checks above passed, set `PHASE=build` if it was `plan` (in build phase the stop hook
+  runs the tests after every turn, so a stop for a red baseline or a missing `TEST_CMD` must happen first).
 - `SLICE` = first slice in outline.md whose status is not `done`. Update `SLICE` in active.env.
 - Working tree clean (`git status --porcelain`) apart from `.workflow/`. If not, ask the user.
 - Record `Base SHA` (`git rev-parse HEAD`) in the slice block and set `Status: implementing` or keep

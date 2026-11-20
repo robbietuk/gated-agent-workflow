@@ -4,6 +4,7 @@ description: Read-only skeptic for /wf-pr. Takes the merged list of lens-reviewe
 model: inherit
 readonly: true
 tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, NotebookEdit
 is_background: false
 ---
 

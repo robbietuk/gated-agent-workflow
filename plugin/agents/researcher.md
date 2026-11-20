@@ -4,6 +4,7 @@ description: Read-only codebase researcher for the agentic workflow. Use from /w
 model: inherit
 readonly: true
 tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, NotebookEdit
 is_background: false
 ---
 

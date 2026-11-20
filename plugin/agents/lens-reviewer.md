@@ -4,6 +4,7 @@ description: Read-only branch reviewer that looks at the branch diff through one
 model: inherit
 readonly: true
 tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, NotebookEdit
 is_background: false
 ---
 

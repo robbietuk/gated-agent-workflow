@@ -48,7 +48,7 @@ Work flows left to right, then down into the build; a hit limit, plan issue or B
 
 - **Locked tests**: tests written from a slice's acceptance criteria, confirmed to FAIL, then committed as test(\<slice\>): lock failing tests. The commit is LOCK_SHA; the files are listed in `locked-tests.txt`. Nobody edits or loosens them.
 
-- **Stop hook**: `stop-gate.sh` in the plugin's `hooks/` folder (or `.cursor/hooks/` after a copy install), run by Cursor after each agent turn. It runs build + tests and sends the agent back to work until they pass, up to 5 runs.
+- **Stop hook**: `stop-gate.sh` in the plugin's `hooks/` folder (or `.cursor/hooks/` after a copy install), run by Cursor or Claude Code after each agent turn. It runs build + tests and sends the agent back to work until they pass, up to 5 runs.
 
 - **Show-me**: the end of each slice. The agent shows a summary, how to run it, the diff stat and test evidence; you approve before it commits.
 
@@ -406,12 +406,12 @@ The workflow produces evidence that fits a regulated process, but it does not ma
 
 ## 12. Setup
 
-The kit is a Cursor plugin. Install it once, then let `/wf-start` set up each repo.
+The kit is one plugin for Cursor and Claude Code. Install it once, then let `/wf-start` set up each repo.
 
-1.  **Install the plugin**, one of three ways:
+1.  **Install the plugin**, one of four ways:
     - **Team marketplace** (best for a team): in the Cursor dashboard, **Plugins & MCPs → Add Marketplace → Import from Repo**, paste `https://github.com/robbietuk/gated-agent-workflow`, then in Cursor open **Customize** and install **gated-agent-workflow**.
     - **Local plugin** (just you): link the repo's `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow` and reload the window. Your organisation may need to allow local plugins.
-    - **Claude Code**: `/plugin marketplace add robbietuk/gated-agent-workflow`, then `/plugin install gated-agent-workflow@gated-agent-workflow`. A session-start hook adds the guardrails, and "new chat" means `/clear`.
+    - **Claude Code**: `/plugin marketplace add robbietuk/gated-agent-workflow`, then `/plugin install gated-agent-workflow@gated-agent-workflow`. Skills are typed as `/gated-agent-workflow:wf-start` and so on; a session-start hook adds the guardrails and maps the names, and "new chat" means `/clear`.
     - **Copy into a repo** (no plugins): `bash tools/install-into-repo.sh /path/to/repo` puts the skills, subagents, rule and hook in the repo's `.cursor/` and sets up `.workflow/`.
 
     The plugin contains the 8 skills, the 4 read-only subagents (`researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier`), the stop hook and the always-on rule.

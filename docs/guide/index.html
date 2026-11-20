@@ -246,9 +246,9 @@ files are listed in <code>locked-tests.txt</code>. Nobody edits or
 loosens them.</p></li>
 <li><p><strong>Stop hook</strong>: <code>stop-gate.sh</code> in the
 plugin's <code>hooks/</code> folder (or <code>.cursor/hooks/</code>
-after a copy install), run by Cursor after each agent turn. It runs
-build + tests and sends the agent back to work until they pass, up to 5
-runs.</p></li>
+after a copy install), run by Cursor or Claude Code after each agent
+turn. It runs build + tests and sends the agent back to work until they
+pass, up to 5 runs.</p></li>
 <li><p><strong>Show-me</strong>: the end of each slice. The agent shows
 a summary, how to run it, the diff stat and test evidence; you approve
 before it commits.</p></li>
@@ -869,10 +869,10 @@ design, verification and problem resolution). Decide together which
 what. Treat agent output as a draft that a qualified engineer reviews,
 as you would any other tool output.</p>
 <h2 id="12-setup">12. Setup</h2>
-<p>The kit is a Cursor plugin. Install it once, then let
-<code>/wf-start</code> set up each repo.</p>
+<p>The kit is one plugin for Cursor and Claude Code. Install it once,
+then let <code>/wf-start</code> set up each repo.</p>
 <ol type="1">
-<li><p><strong>Install the plugin</strong>, one of three ways:</p>
+<li><p><strong>Install the plugin</strong>, one of four ways:</p>
 <ul>
 <li><strong>Team marketplace</strong> (best for a team): in the Cursor
 dashboard, <strong>Plugins &amp; MCPs → Add Marketplace → Import from
@@ -888,8 +888,9 @@ window. Your organisation may need to allow local plugins.</li>
 <code>/plugin marketplace add robbietuk/gated-agent-workflow</code>,
 then
 <code>/plugin install gated-agent-workflow@gated-agent-workflow</code>.
-A session-start hook adds the guardrails, and "new chat" means
-<code>/clear</code>.</li>
+Skills are typed as <code>/gated-agent-workflow:wf-start</code> and so
+on; a session-start hook adds the guardrails and maps the names, and
+"new chat" means <code>/clear</code>.</li>
 <li><strong>Copy into a repo</strong> (no plugins):
 <code>bash tools/install-into-repo.sh /path/to/repo</code> puts the
 skills, subagents, rule and hook in the repo's <code>.cursor/</code> and
