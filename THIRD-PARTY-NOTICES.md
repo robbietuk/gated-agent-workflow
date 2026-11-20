@@ -13,22 +13,22 @@ own scripts, visual companion server, worktree skill dependencies and `docs/supe
 
 | Kit file | Adapted from (superpowers skill) |
 |---|---|
-| `.cursor/skills/wf-start/SKILL.md` | brainstorming (question style only) |
-| `.cursor/skills/wf-brainstorm/SKILL.md` | brainstorming |
-| `.cursor/skills/wf-plan/SKILL.md` | writing-plans |
-| `.cursor/skills/wf-build/SKILL.md` | subagent-driven-development, test-driven-development, verification-before-completion |
-| `.cursor/skills/wf-build/references/tdd.md` | test-driven-development |
-| `.cursor/skills/wf-build/references/review-loop.md` | subagent-driven-development (references/fix-loop.md, task-reviewer-prompt.md) |
-| `.cursor/skills/wf-build/references/verification.md` | verification-before-completion |
-| `.cursor/skills/wf-debug/SKILL.md` | systematic-debugging, test-driven-development |
-| `.cursor/skills/wf-debug/references/root-cause-tracing.md` | systematic-debugging (root-cause-tracing.md) |
-| `.cursor/skills/wf-escalate/SKILL.md` | finishing-a-development-branch (git safety rules) |
-| `.cursor/skills/wf-pr/SKILL.md`, `references/branch-review.md` | requesting-code-review (code-reviewer.md), subagent-driven-development (references/final-review.md), finishing-a-development-branch |
-| `.cursor/agents/slice-reviewer.md` | subagent-driven-development (task-reviewer-prompt.md) |
-| `.cursor/agents/lens-reviewer.md` | requesting-code-review (code-reviewer.md) |
+| `plugin/skills/wf-start/SKILL.md` | brainstorming (question style only) |
+| `plugin/skills/wf-brainstorm/SKILL.md` | brainstorming |
+| `plugin/skills/wf-plan/SKILL.md` | writing-plans |
+| `plugin/skills/wf-build/SKILL.md` | subagent-driven-development, test-driven-development, verification-before-completion |
+| `plugin/skills/wf-build/references/tdd.md` | test-driven-development |
+| `plugin/skills/wf-build/references/review-loop.md` | subagent-driven-development (references/fix-loop.md, task-reviewer-prompt.md) |
+| `plugin/skills/wf-build/references/verification.md` | verification-before-completion |
+| `plugin/skills/wf-debug/SKILL.md` | systematic-debugging, test-driven-development |
+| `plugin/skills/wf-debug/references/root-cause-tracing.md` | systematic-debugging (root-cause-tracing.md) |
+| `plugin/skills/wf-escalate/SKILL.md` | finishing-a-development-branch (git safety rules) |
+| `plugin/skills/wf-pr/SKILL.md`, `references/branch-review.md` | requesting-code-review (code-reviewer.md), subagent-driven-development (references/final-review.md), finishing-a-development-branch |
+| `plugin/agents/slice-reviewer.md` | subagent-driven-development (task-reviewer-prompt.md) |
+| `plugin/agents/lens-reviewer.md` | requesting-code-review (code-reviewer.md) |
 
 Not derived from superpowers: `wf-research`, `researcher`, `finding-verifier`, the stop hook and its test,
-`workflow.env`, the rule file and the `.workflow/templates/`.
+`config.env` (`.workflow/config.env`), the rule file and the `.workflow/kit/templates/`.
 
 ### MIT License text
 

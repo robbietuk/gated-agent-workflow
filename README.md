@@ -12,10 +12,10 @@ fixes. Built for regulated (medical-device) software, where traceability and hum
 - **Guide:** [docs/guide/index.html](docs/guide/index.html) (Markdown source: [docs/guide.md](docs/guide.md)) - tracks, walkthroughs, gates, limits, setup, FAQ.
 - **Slides:** [docs/slides/index.html](docs/slides/index.html) - 17 slides with speaker notes; arrow keys to move.
 - **Cheat sheet:** [docs/cheatsheet.html](docs/cheatsheet.html) - one printable page with every command.
-- **Kit:** everything under [`.cursor/`](.cursor) and [`.workflow/templates/`](.workflow/templates) - copy into your repo root.
+- **Kit:** a Cursor plugin in [`plugin/`](plugin): install it from this repo as a team marketplace, as a local plugin, or copy it into a repo with [`tools/install-into-repo.sh`](tools/install-into-repo.sh). See [Install](#install).
 
 > Status: the formats follow Cursor's documentation (Cursor 2.4+), and the stop hook has a self-test
-> (`bash .cursor/hooks/test-stop-gate.sh`), but the kit has not yet been exercised end to end inside Cursor.
+> (`bash plugin/hooks/test-stop-gate.sh`), but the kit has not yet been exercised end to end inside Cursor.
 > Try it on a small change first and open an issue with what you find.
 
 ---
@@ -64,17 +64,30 @@ traceability matters.
 
 ## What is in the kit
 
-| Path | What |
+The kit is a Cursor plugin in [`plugin/`](plugin):
+
+| Path in `plugin/` | What it is |
 |---|---|
-| `.cursor/skills/wf-start` ... `wf-pr` | Eight skills, invoked as `/wf-start`, `/wf-research`, `/wf-brainstorm`, `/wf-plan`, `/wf-build`, `/wf-debug`, `/wf-escalate`, `/wf-pr` |
-| `.cursor/agents/` | Read-only subagents: `researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier` |
-| `.cursor/hooks.json`, `.cursor/hooks/stop-gate.sh` | Stop hook: in build phase, guards locked tests and runs build + tests after every agent turn |
-| `.cursor/hooks/test-stop-gate.sh` | Self-test for the hook (temp git repo, all scenarios, JSON validation) |
-| `.cursor/workflow.env` | Your build/test commands, the iteration limits and the size thresholds |
-| `.cursor/ci-checks.md` | How the skills find and run the repo's own CI checks (`make ci`, `.github/workflows/`, ...) |
-| `.cursor/workflow-scaling.md` | How many researchers and reviewers to run, scaled to the size and risk of the work |
-| `.cursor/rules/agentic-workflow.mdc` | Always-on guardrails (locked tests, limits, escalate, no merge/push) |
-| `.workflow/templates/` | `spec.md`, `bug-report.md`, `design.md`, `outline.md`, `decisions.md`, `pr-description.md` |
+| `.cursor-plugin/plugin.json` | Plugin manifest (name, version, author) |
+| `skills/wf-start` ... `wf-pr` | Eight skills, invoked as `/wf-start`, `/wf-research`, `/wf-brainstorm`, `/wf-plan`, `/wf-build`, `/wf-debug`, `/wf-pr`, `/wf-escalate` |
+| `agents/` | Read-only subagents: `researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier` |
+| `hooks/hooks.json`, `hooks/stop-gate.sh` | Stop hook: in build phase, guards locked tests and runs build + tests after every agent turn |
+| `hooks/test-stop-gate.sh` | Self-test for the hook (temp git repo, all scenarios, JSON validation) |
+| `rules/agentic-workflow.mdc` | Always-on guardrails (repo setup, locked tests, limits, hand-offs, escalate, no merge/push) |
+| `skills/wf-start/kit/` | Per-repo files that `/wf-start` sets up in `.workflow/` on first use: `config.env`, `scaling.md`, `ci-procedure.md`, `templates/` |
+
+The repo root also has `.cursor-plugin/marketplace.json`, which lets Cursor import this repository as a
+marketplace containing the plugin.
+
+In each repo that uses it, the workflow keeps:
+
+| Path | What it is |
+|---|---|
+| `.workflow/config.env` | Your build/test/CI commands, the iteration limits and the size thresholds |
+| `.workflow/kit/scaling.md` | How many researchers and reviewers to run, scaled to the size and risk of the work |
+| `.workflow/kit/ci-procedure.md` | How the skills find and run the repo's own CI checks (`make ci`, `.github/workflows/`, ...) |
+| `.workflow/kit/templates/` | `spec.md`, `bug-report.md`, `design.md`, `outline.md`, `decisions.md`, `pr-description.md` |
+| `.workflow/ci-checks.md` | The repo's CI checks, found on first use |
 
 ## Requirements
 
@@ -82,30 +95,50 @@ traceability matters.
   (January 2026). On an older version the `/wf-*` skills and subagents will not appear.
 - Hooks run only in a **trusted workspace**, and an enterprise admin can restrict hooks, skills or
   subagents. If `/wf` shows nothing or the hook never fires, check those settings first.
-- `bash` and `git` on the PATH Cursor uses (the hook command is `bash .cursor/hooks/stop-gate.sh`).
+- `bash` and `git` on the PATH Cursor uses (the stop hook is a bash script).
+- Installing as a plugin needs a Cursor version with plugins (2.5 or later). On Enterprise, an admin may
+  need to allow team marketplaces or local plugins.
 
 ## Install
 
-1. Copy `.cursor/`, `.workflow/` into your repository root (merge with an existing `.cursor/` if you have
-   one; if you already have a `hooks.json`, add the `stop` entry to it).
-2. Edit `.cursor/workflow.env`: set `TEST_CMD` (required) and `BUILD_CMD` (optional; leave empty if the test
-   command builds). Both run from the repo root with `bash -c`. Examples:
-   `BUILD_CMD="cmake --build build -j"` / `TEST_CMD="ctest --test-dir build --output-on-failure"`, or
-   `TEST_CMD="dotnet test"`, or `TEST_CMD="pytest -q"`. If the repo has a local CI entry point, set it too:
-   `CI_CMD="make ci"`.
-3. Make the scripts executable: `chmod +x .cursor/hooks/*.sh`
-4. Check the hook: `bash .cursor/hooks/test-stop-gate.sh` (needs `git` and `python3`). All lines should say PASS.
-5. Restart Cursor (or reload the window) so it picks up skills, subagents and hooks. Type `/wf` in the agent
-   chat to see the skills.
-6. Decide whether `.workflow/` work folders are committed (traceability record) or ignored. To ignore all
-   but the templates, add to `.gitignore`:
+Pick one of three ways. All give you the same `/wf-*` commands.
+
+### A. Team marketplace (recommended for a team)
+1. In the Cursor dashboard, go to **Plugins & MCPs**, click **Add Marketplace**, choose **Import from Repo** and
+   paste `https://github.com/robbietuk/gated-agent-workflow` (or your fork, or an internal mirror).
+2. In Cursor, open **Customize**, find **gated-agent-workflow** and click **Install** (project or user scope).
+
+### B. Local plugin (just you, no admin needed unless your organisation blocks local plugins)
+1. Clone this repo, then copy or link its `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow`:
+   `ln -s "$PWD/plugin" ~/.cursor/plugins/local/gated-agent-workflow`
+2. Restart Cursor or run **Developer: Reload Window**.
+
+### C. Copy into a repo (no plugins at all)
+`bash tools/install-into-repo.sh /path/to/your/repo` copies the skills, subagents, rule and hook into its
+`.cursor/` and sets up `.workflow/`. Run it again to update; it never overwrites `.workflow/config.env` or an
+existing `.cursor/hooks.json`.
+
+### Then, in each repo
+1. Type `/wf-start`. On first use it sets the repo up: it creates `.workflow/config.env` and `.workflow/kit/`
+   and asks for your commands: `TEST_CMD` (required), `BUILD_CMD` (optional) and `CI_CMD` (for example
+   `make ci`, if you have one). Examples: `BUILD_CMD="cmake --build build -j"` /
+   `TEST_CMD="ctest --test-dir build --output-on-failure"`, or `TEST_CMD="dotnet test"`, or `TEST_CMD="pytest -q"`.
+2. Commit `.workflow/config.env`, `.workflow/kit/` and `.workflow/ci-checks.md` so the team shares them.
+   Decide whether work folders are committed (a traceability record) or ignored; either way ignore the local
+   state:
    ```
-   .workflow/*
-   !.workflow/templates/
-   !.workflow/ci-checks.md
+   .workflow/active.env
+   .workflow/*/last-run.log
    ```
-   `.workflow/ci-checks.md` (the repo's CI checks, found on first use) is worth committing so the team shares it.
-   Either way `.workflow/active.env` and `*/last-run.log` are local state; ignoring them is sensible.
+3. Check the hook on your machine: `bash plugin/hooks/test-stop-gate.sh` from this repo (or
+   `bash .cursor/hooks/test-stop-gate.sh` after a copy install). All lines should say PASS.
+
+**After a plugin update,** `/wf-start` notices the new version and offers to refresh `.workflow/kit/`. It
+never overwrites `.workflow/config.env`; it lists any new settings and offers to add them.
+
+**Not yet verified in Cursor:** how a plugin's stop hook resolves its script path and working directory.
+The hook moves itself to the workspace root Cursor passes in, which the self-test covers, but if the hook
+does not fire from a plugin install, use install option C for now (tracked in issue #1 and #6).
 
 **Windows:** the hook is a bash script. Cursor must be able to run it with bash: install Git for Windows
 (Git Bash) or use WSL, and make sure `bash` is on the PATH Cursor sees. The skills and subagents work
@@ -161,7 +194,9 @@ undo the slice (you confirm any git command), logs a dated entry in `decisions.m
 ```
 .workflow/
   active.env                      # WORK_DIR, TRACK, PHASE, SLICE, LOCK_SHA for the current work item
-  templates/                      # copied by the skills
+  config.env                      # your commands, limits and thresholds
+  kit/                            # scaling.md, ci-procedure.md, templates/ (set up by /wf-start)
+  ci-checks.md                    # the repo's CI checks, found on first use
   2026-11-20-alarm-limit-sync/    # one folder per work item: <YYYY-MM-DD>-<slug>
     spec.md | bug-report.md       # what, why, done (you + agent)
     questions.md                  # factual questions for the researcher
@@ -206,25 +241,25 @@ Never: keep going past a limit, or edit/loosen a locked test. The hook detects l
 
 ## Tuning
 
-- **Limits:** change the numbers in `.cursor/workflow.env`. Keep `loop_limit` in `.cursor/hooks.json` at
+- **Limits:** change the numbers in `.workflow/config.env`. Keep `loop_limit` in the hooks config (`plugin/hooks/hooks.json`, or `.cursor/hooks.json` after a copy install) at
   least `MAX_STOP_RUNS + 1` so the escalation message can be delivered.
 - **Slow suites:** point `TEST_CMD` at a fast subset (e.g. the module's tests) and let `/wf-pr` run the full
   suite; raise `timeout` in `hooks.json` (seconds) if needed.
 - **Models:** subagents use `model: inherit`. Set a specific model in the agent frontmatter if you want
   cheaper research or a stronger reviewer.
-- **CI checks:** set `CI_CMD` in `.cursor/workflow.env` if the repo has one local entry point (for example
+- **CI checks:** set `CI_CMD` in `.workflow/config.env` if the repo has one local entry point (for example
   `CI_CMD="make ci"`). Otherwise the skills read the `Makefile`, `.github/workflows/` and other CI config,
   write what they find to `.workflow/ci-checks.md`, and run the checks that can run locally: the fast ones
   before each show-me, all of them before the PR. Reviewers also read the pipeline: they flag changes that
   would fail a CI-only job, tests CI would not pick up, and weakened checks.
 - **Review and research depth:** the number of subagents scales with the work. A diff is sized into tiers
   XS / S / M / L by changed lines and files (`TIER_XS_LINES`, `TIER_S_LINES`, `TIER_M_LINES` in
-  `.cursor/workflow.env`), high risk moves it up a tier, and `.cursor/workflow-scaling.md` maps each tier to
+  `.workflow/config.env`), high risk moves it up a tier, and `.workflow/kit/scaling.md` maps each tier to
   a plan: one light reviewer for a few lines, up to `MAX_REVIEW_AGENTS` reviewers split by lens and file
   group for a large branch. Research scales by question count and code areas, up to `MAX_RESEARCHERS`.
-- **Lenses:** edit `.cursor/agents/lens-reviewer.md` and `wf-pr/references/branch-review.md` to add or
+- **Lenses:** edit `plugin/agents/lens-reviewer.md` and `plugin/skills/wf-pr/references/branch-review.md` to add or
   change lenses (e.g. cybersecurity, performance).
-- **Templates:** edit `.workflow/templates/` to match your SRS / hazard-analysis IDs and PR template.
+- **Templates:** edit `.workflow/kit/templates/` to match your SRS / hazard-analysis IDs and PR template.
 - **Auto-invocation:** the skills allow model invocation with precise descriptions. To make a skill run
   only when typed, add `disable-model-invocation: true` to its frontmatter.
 

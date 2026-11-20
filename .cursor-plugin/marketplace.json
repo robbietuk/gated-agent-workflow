@@ -1,0 +1,17 @@
+{
+  "name": "gated-agent-workflow",
+  "owner": {
+    "name": "Robert Twyman Skelly"
+  },
+  "metadata": {
+    "description": "Cursor plugin for a gated, mostly agentic coding workflow.",
+    "version": "1.1.0"
+  },
+  "plugins": [
+    {
+      "name": "gated-agent-workflow",
+      "source": "plugin",
+      "description": "Skills, read-only reviewer subagents, a stop hook and an always-on rule for a gated research-plan-build-review workflow."
+    }
+  ]
+}

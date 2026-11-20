@@ -48,7 +48,7 @@ Work flows left to right, then down into the build; a hit limit, plan issue or B
 
 - **Locked tests**: tests written from a slice's acceptance criteria, confirmed to FAIL, then committed as test(\<slice\>): lock failing tests. The commit is LOCK_SHA; the files are listed in `locked-tests.txt`. Nobody edits or loosens them.
 
-- **Stop hook**: `.cursor/hooks/stop-gate.sh`, run by Cursor after each agent turn. It runs build + tests and sends the agent back to work until they pass, up to 5 runs.
+- **Stop hook**: `stop-gate.sh` in the plugin's `hooks/` folder (or `.cursor/hooks/` after a copy install), run by Cursor after each agent turn. It runs build + tests and sends the agent back to work until they pass, up to 5 runs.
 
 - **Show-me**: the end of each slice. The agent shows a summary, how to run it, the diff stat and test evidence; you approve before it commits.
 
@@ -287,7 +287,7 @@ Every agent loop has a hard limit; hitting it means escalate, not try harder.
 | PR fix → re-run       | 2 rounds             | Escalate                                      | wf-pr skill       |
 | Brainstorm, planning  | None (you are in it) | More than 3 planning rounds: revisit the spec | You               |
 
-The numbers live in `.cursor/workflow.env` as MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2. `.cursor/hooks.json` sets the hook's loop_limit to 6 as a backstop above MAX_STOP_RUNS.
+The numbers live in `.workflow/config.env` as MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2. The hooks config sets the hook's loop_limit to 6 as a backstop above MAX_STOP_RUNS.
 
 **Never keep going past a limit. Never edit or loosen a locked test.** A limit hit is information: the plan, the design or the spec is wrong somewhere, and more attempts will hide that.
 
@@ -349,7 +349,7 @@ Review happens twice: per slice to catch local mistakes early, and on the whole 
 
 ### Review depth scales with the work
 
-The agent sizes each diff before reviewing and picks a plan from `.cursor/workflow-scaling.md`. High risk (a `high` risk flag, hazard IDs, threading or timing code, alarm or limit logic, config or data formats, device-facing interfaces) moves the tier up one step.
+The agent sizes each diff before reviewing and picks a plan from `.workflow/kit/scaling.md`. High risk (a `high` risk flag, hazard IDs, threading or timing code, alarm or limit logic, config or data formats, device-facing interfaces) moves the tier up one step.
 
 | Tier | Size (changed lines / files) | Slice review | Branch review |
 |---|---|---|---|
@@ -358,7 +358,7 @@ The agent sizes each diff before reviewing and picks a plan from `.cursor/workfl
 | M | up to 2,000 / 40 | 2 reviewers: spec, then quality | 5 lens reviewers + verifier |
 | L | more | Stop: the slice is too big, split it | 5 lenses × file groups + an integration reviewer, up to 12, + verifier |
 
-A dedicated safety/hazard reviewer always runs when hazard IDs are in scope. Research scales the same way: one researcher for a few questions in one area, up to four in parallel for a broad set. The agent tells you the plan in one line before it starts, and records it in the show-me and the PR description. The thresholds are in `.cursor/workflow.env`.
+A dedicated safety/hazard reviewer always runs when hazard IDs are in scope. Research scales the same way: one researcher for a few questions in one area, up to four in parallel for a broad set. The agent tells you the plan in one line before it starts, and records it in the show-me and the PR description. The thresholds are in `.workflow/config.env`.
 
 ### The repo's own CI checks
 
@@ -406,35 +406,26 @@ The workflow produces evidence that fits a regulated process, but it does not ma
 
 ## 12. Setup
 
-Setup is a copy, two settings and a permission change.
+The kit is a Cursor plugin. Install it once, then let `/wf-start` set up each repo.
 
-1.  **Copy the kit into the repo root.** It adds:
+1.  **Install the plugin**, one of three ways:
+    - **Team marketplace** (best for a team): in the Cursor dashboard, **Plugins & MCPs → Add Marketplace → Import from Repo**, paste `https://github.com/robbietuk/gated-agent-workflow`, then in Cursor open **Customize** and install **gated-agent-workflow**.
+    - **Local plugin** (just you): link the repo's `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow` and reload the window. Your organisation may need to allow local plugins.
+    - **Copy into a repo** (no plugins): `bash tools/install-into-repo.sh /path/to/repo` puts the skills, subagents, rule and hook in the repo's `.cursor/` and sets up `.workflow/`.
 
-    - `.cursor/skills/` — wf-start, wf-research, wf-brainstorm, wf-plan, wf-build, wf-debug, wf-escalate, wf-pr (each a folder with `SKILL.md`)
+    The plugin contains the 8 skills, the 4 read-only subagents (`researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier`), the stop hook and the always-on rule.
 
-    - `.cursor/workflow-scaling.md` — how many researchers and reviewers to run for the size of the work
-    - `.cursor/ci-checks.md` — how the skills find and run the repo's CI checks
-    - `.cursor/agents/` — `researcher.md`, `slice-reviewer.md`, `lens-reviewer.md`, `finding-verifier.md` (all readonly: true)
+2.  **Run `/wf-start` in the repo.** On first use it creates `.workflow/config.env` and `.workflow/kit/` (scaling tiers, CI procedure, templates) and asks for `TEST_CMD`, `BUILD_CMD` and `CI_CMD` (for example `make ci`). Leave the MAX\_\* limits at their defaults to start. After a plugin update it offers to refresh `.workflow/kit/` and never overwrites your settings.
 
-    - `.cursor/hooks.json` and `.cursor/hooks/stop-gate.sh`
+3.  **Requirements**: Cursor 2.4 or later (2.5 or later for plugins), a trusted workspace (Cursor runs hooks only there), and `bash` and `git` on the PATH Cursor uses; on Windows that means Git Bash or WSL. An enterprise admin can restrict plugins, hooks, skills or subagents.
 
-    - `.cursor/workflow.env`
-
-    - `.cursor/rules/agentic-workflow.mdc` (always-apply rule)
-
-    - `.workflow/templates/` — `spec.md`, `bug-report.md`, `design.md`, `outline.md`, `decisions.md`, `pr-description.md`
-
-    - `README.md`, `THIRD-PARTY-NOTICES.md`
-
-2.  **Set BUILD_CMD and TEST_CMD** in `.cursor/workflow.env` to your project's build and test commands. If the repo has one local CI entry point, set `CI_CMD` too (for example `CI_CMD="make ci"`); otherwise the skills find the checks themselves. Leave the MAX\_\* limits at their defaults to start.
-
-3.  **Make the hook executable**: `chmod +x` `.cursor/hooks/stop-gate.sh`.
-
-4.  **Windows**: the hook runs as bash `.cursor/hooks/stop-gate.sh`, so you need Git Bash or WSL with bash on the PATH Cursor uses. Also needed everywhere: Cursor 2.4 or later (skills and custom subagents arrived in 2.4), and a trusted workspace (Cursor runs project hooks only there); an enterprise admin can restrict hooks, skills or subagents.
-
-5.  **Commit the kit** so the whole team gets the same workflow.
+4.  **Commit `.workflow/config.env`, `.workflow/kit/` and `.workflow/ci-checks.md`** so the whole team gets the same settings.
 
 ### First-run checklist
+
+- [ ] The plugin shows as installed in Cursor (or, after a copy install, the files are in `.cursor/`)
+
+- [ ] `/wf-start` created `.workflow/config.env` and `.workflow/kit/`
 
 - [ ] BUILD_CMD and TEST_CMD each run cleanly from the repo root in a terminal
 
@@ -470,7 +461,7 @@ Start strict and relax only when the numbers say the agent has earned it.
 
 Most problems come from setup, a skipped gate, or a context that has grown too long.
 
-**The stop hook doesn't fire.** Check `.cursor/hooks.json` exists at the repo root and points stop at `.cursor/hooks/stop-gate.sh`; check the script is executable (`chmod +x`); check the workspace is trusted and Cursor is 2.4 or later; on Windows, check Git Bash or WSL is installed. Run BUILD_CMD and TEST_CMD by hand to confirm they work.
+**The stop hook doesn't fire.** Check the plugin is installed and enabled (or, after a copy install, that `.cursor/hooks.json` points `stop` at `.cursor/hooks/stop-gate.sh`); if a plugin install's hook never fires, use the copy install for now; check the script is executable (`chmod +x`); check the workspace is trusted and Cursor is 2.4 or later; on Windows, check Git Bash or WSL is installed. Run BUILD_CMD and TEST_CMD by hand to confirm they work.
 
 **The agent edited a locked test.** Stop. Revert the test to LOCK_SHA (the files are listed in `locked-tests.txt`). If the test really is wrong, that is a plan issue: run `/wf-escalate`, record it in `decisions.md`, and re-lock in the next pass.
 
@@ -480,7 +471,7 @@ Most problems come from setup, a skipped gate, or a context that has grown too l
 
 **The context is getting long or the agent is losing track.** Start a new chat; each command's hand-off recommends when (always for `/wf-build` and `/wf-pr`). State lives in `.workflow/active.env` and the work folder, so the next command picks up where you left off.
 
-**My Cursor version doesn't show skills, subagents or hooks.** The kit uses `.cursor/skills`, `.cursor/agents` and `hooks.json` (v1, stop hook with followup_message and loop_count). Update Cursor to a version that supports them; check the Cursor docs for each feature.
+**My Cursor version doesn't show skills, subagents or hooks.** The kit uses Cursor skills, subagents and a `hooks.json` stop hook (v1, stop hook with followup_message and loop_count). Update Cursor to a version that supports them; check the Cursor docs for each feature.
 
 **The researcher's output is opinionated or vague.** It should only see `questions.md`. Rewrite the questions as factual ones ("where is X handled?", "what calls Y?") and re-run `/wf-research`.
 
@@ -524,4 +515,4 @@ One page: commands per track, who acts at each gate, and the limits.
 
 - The research → plan → implement structure and the short design/outline artifacts follow HumanLayer's RPI/CRISPY lessons.
 
-- Hooks, skills and subagents follow the Cursor docs: `hooks.json` v1, the stop hook's followup_message and loop_count, skills in `.cursor/skills`, subagents in `.cursor/agents`.
+- Hooks, skills and subagents follow the Cursor docs: `hooks.json` v1, the stop hook's followup_message and loop_count, skills in `skills/`, subagents in `.cursor/agents`.
