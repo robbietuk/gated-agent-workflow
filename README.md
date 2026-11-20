@@ -20,6 +20,17 @@ fixes. Built for regulated (medical-device) software, where traceability and hum
 
 ---
 
+### Releasing
+Installed copies only update when the version changes: Claude Code keeps its cached copy until the
+version in `plugin.json` changes, and `/wf-start` refreshes a repo's `.workflow/kit/` when `kit/VERSION`
+changes. `make release VERSION=1.2.0` sets the version in all four places and runs `make ci`; then commit,
+open a PR, merge and tag `v1.2.0`.
+
+**Getting updates:** Cursor team marketplaces re-index on push when Auto Refresh is on, and Cursor picks
+the update up on the next window focus. Claude Code users turn on auto-update for this marketplace in
+`/plugin` → Marketplaces, or run `/plugin marketplace update gated-agent-workflow`. Local Cursor plugins
+need `plugin/` copied again.
+
 ### Checks
 `make ci` runs the stop-hook self-test, the session-start and installer checks (including the upgrade from
 the older `.cursor/` layout), the manifest and version checks and, if Claude Code is installed,
@@ -117,8 +128,10 @@ Pick one of four ways (A-C for Cursor, D for Claude Code). All give you the same
 2. In Cursor, open **Customize**, find **gated-agent-workflow** and click **Install** (project or user scope).
 
 ### B. Local plugin (just you, no admin needed unless your organisation blocks local plugins)
-1. Clone this repo, then copy or link its `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow`:
-   `ln -s "$PWD/plugin" ~/.cursor/plugins/local/gated-agent-workflow`
+1. Clone this repo, then copy its `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow`:
+   `mkdir -p ~/.cursor/plugins/local && cp -R plugin ~/.cursor/plugins/local/gated-agent-workflow`
+   (Copy, do not symlink: Cursor does not load a symlink that points outside that folder. After a
+   `git pull`, copy it again.) To try an unmerged branch, check it out before copying.
 2. Restart Cursor or run **Developer: Reload Window**.
 
 ### C. Copy into a repo (no plugins at all)
