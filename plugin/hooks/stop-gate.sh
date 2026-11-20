@@ -41,11 +41,13 @@ CANDIDATES=()
 [ "$HOST" = claude ] && [ -n "${CLAUDE_PROJECT_DIR:-}" ] && CANDIDATES+=("$CLAUDE_PROJECT_DIR")
 ROOTS="$(printf '%s' "$FLAT" | sed -n 's/.*"workspace_roots"[[:space:]]*:[[:space:]]*\[\([^]]*\)\].*/\1/p')"
 if [ -n "$ROOTS" ]; then
+  ROOTS="$(printf '%s' "$ROOTS" | sed 's/"[[:space:]]*,[[:space:]]*"/","/g')"
+  ROOTS_NL="${ROOTS//\",\"/\"$'\n'\"}"     # one root per line (bash, so it works with BSD sed too)
   while IFS= read -r r; do
     r="$(printf '%s' "$r" | sed -e 's/^[[:space:]]*"//' -e 's/"[[:space:]]*$//')"
     [ -n "$r" ] && CANDIDATES+=("$r")
   done <<EOF_ROOTS
-$(printf '%s' "$ROOTS" | sed 's/"[[:space:]]*,[[:space:]]*"/"\n"/g')
+${ROOTS_NL}
 EOF_ROOTS
 fi
 CWD_IN="$(printf '%s' "$FLAT" | sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
@@ -58,6 +60,8 @@ for c in "${CANDIDATES[@]}"; do
   while [ -n "$d" ]; do
     if [ -f "$d/.workflow/active.env" ]; then ROOT="$d"; break 2; fi
     [ "$d" = "/" ] && break
+    # Stop at the top of the outermost git repo: never pick up a .workflow/ from an unrelated folder above it.
+    if [ -e "$d/.git" ] && ! git -C "$(dirname "$d")" rev-parse --is-inside-work-tree >/dev/null 2>&1; then break; fi
     d="$(dirname "$d")"
   done
 done
@@ -162,7 +166,7 @@ if [ -n "$LOCK_SHA" ] && [ -f "$LOCK_LIST" ]; then
         emit "stop-gate: locked tests are still modified for ${SLICE_LABEL} after the run cap:
 ${CHANGED}
 Restore them with: git checkout ${LOCK_SHA} -- ${FILES% }
-The agent has stopped. Review the change, restore the tests, and run /wf-escalate if a locked test is wrong." stop
+Stop now: do not change any more code. Tell the user the locked tests were edited, show the diff, and let them decide (restore, or /wf-escalate if a locked test is wrong)." stop
         exit 0
       fi
       emit "Locked tests were modified for ${SLICE_LABEL}:

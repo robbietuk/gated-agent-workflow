@@ -34,7 +34,7 @@ done
 [ "$FAIL" -eq 0 ] && ok "installer creates the expected files"
 python3 -m json.tool "$R/.cursor/hooks.json" >/dev/null 2>&1 && ok "installer hooks.json is valid JSON" || bad "installer hooks.json is valid JSON"
 echo 'TEST_CMD="my tests"' >> "$R/.workflow/config.env"
-bash tools/install-into-repo.sh "$R" > /dev/null 2>&1
+bash tools/install-into-repo.sh "$R" > /dev/null 2>&1 || bad "installer re-run exits 0"
 grep -q 'TEST_CMD="my tests"' "$R/.workflow/config.env" && ok "re-running keeps .workflow/config.env" || bad "re-running keeps .workflow/config.env"
 
 U="$TMP/old repo"; mkdir -p "$U/.cursor" "$U/.workflow/templates" && git -C "$U" init -q

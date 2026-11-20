@@ -287,7 +287,7 @@ Every agent loop has a hard limit; hitting it means escalate, not try harder.
 | PR fix → re-run       | 2 rounds             | Escalate                                      | wf-pr skill       |
 | Brainstorm, planning  | None (you are in it) | More than 3 planning rounds: revisit the spec | You               |
 
-The numbers live in `.workflow/config.env` as MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2. The hooks config sets the hook's loop_limit to 6 as a backstop above MAX_STOP_RUNS.
+The numbers live in `.workflow/config.env` as MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2. The hook enforces MAX_STOP_RUNS itself; Cursor's loop_limit (20) is only a backstop, so keep MAX_STOP_RUNS below 20.
 
 **Never keep going past a limit. Never edit or loosen a locked test.** A limit hit is information: the plan, the design or the spec is wrong somewhere, and more attempts will hide that.
 

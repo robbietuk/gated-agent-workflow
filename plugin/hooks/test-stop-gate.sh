@@ -283,6 +283,12 @@ expect_block "claude: unusable cwd falls through to CLAUDE_PROJECT_DIR" "$OUT" "
 OUT="$( (cd / && printf '{"status":"completed","loop_count":0,"workspace_roots":["/nonexistent","%s/nested repo","%s"]}' "$TMP" "$TMP" | bash "$TMP/.cursor/hooks/stop-gate.sh") )"
 expect_followup "cursor: multi-root workspace, project not first -> found" "$OUT" "run 1 of 2"
 
+mkdir -p "$TMP_BASE/.workflow" "$TMP_BASE/other repo" && (cd "$TMP_BASE/other repo" && git init -q .)
+printf 'WORK_DIR=.workflow\nPHASE=build\n' > "$TMP_BASE/.workflow/active.env"
+OUT="$(run_claude_at false "$TMP_BASE/other repo" "")"
+expect_silent "claude: never uses a .workflow/ above the repo's own git root" "$OUT"
+rm -rf "$TMP_BASE/.workflow"
+
 rm -f .workflow/2026-01-01-demo/.stop-runs && mkdir .workflow/2026-01-01-demo/.stop-runs
 OUT="$(run_claude false)"
 expect_stop "claude: run count cannot be written -> stop, never loop" "$OUT" "cannot write"

@@ -135,19 +135,21 @@ The same `plugin/` folder is also a Claude Code plugin (it passes `claude plugin
 Claude Code namespaces plugin skills, so `/wf-start` is typed as `/gated-agent-workflow:wf-start` (and so on
 for every skill). Claude Code has no always-on rules, so a `SessionStart` hook adds the guardrails to every
 session, along with how the kit's names map (`/wf-x`, the subagents, "new chat" = `/clear`). The stop hook
-is the same script as in Cursor. Install the plugin in Cursor or in Claude Code on a machine, not both
-installs of the same kit in one tool.
+is the same script as in Cursor. You can use the kit in both tools, but install it
+only once per tool: in Cursor, the plugin or a copy install, not both (two copies run two stop hooks).
+The guardrails are added to every Claude Code session, including repos that do not use the workflow
+(about 950 tokens).
 
 ### Upgrading from the older `.cursor/` copy-in layout
 Before installing the plugin, remove the old copy so its skills and stop hook do not run alongside it:
 `.cursor/skills/wf-*`, this kit's `.cursor/agents/*.md`, `.cursor/rules/agentic-workflow.mdc`,
-`.cursor/hooks/stop-gate.sh` and the stop entry in `.cursor/hooks.json`. Then run `/wf-start`: it moves your
+`.cursor/hooks/stop-gate.sh`, `.cursor/hooks/test-stop-gate.sh` and the stop entry in `.cursor/hooks.json`. Then run `/wf-start`: it moves your
 settings from `.cursor/workflow.env` to `.workflow/config.env`. (`tools/install-into-repo.sh` does the same
 move for copy installs.) Afterwards `.cursor/workflow.env`, `.cursor/workflow-scaling.md`,
 `.cursor/ci-checks.md` and `.workflow/templates/` can be deleted.
 
 ### Then, in each repo
-1. Type `/wf-start`. On first use it sets the repo up: it creates `.workflow/config.env` and `.workflow/kit/`
+1. Type `/wf-start` (Claude Code: `/gated-agent-workflow:wf-start`). On first use it sets the repo up: it creates `.workflow/config.env` and `.workflow/kit/`
    and asks for your commands: `TEST_CMD` (required), `BUILD_CMD` (optional) and `CI_CMD` (for example
    `make ci`, if you have one). Examples: `BUILD_CMD="cmake --build build -j"` /
    `TEST_CMD="ctest --test-dir build --output-on-failure"`, or `TEST_CMD="dotnet test"`, or `TEST_CMD="pytest -q"`.

@@ -32,14 +32,14 @@ chmod +x "$DEST/.cursor/hooks/"*.sh
 # Hook registration: project hooks run from the repo root.
 if [ -f "$DEST/.cursor/hooks.json" ]; then
   echo "note: $DEST/.cursor/hooks.json exists; not changed. Make sure it has this stop hook:"
-  echo '  {"command": "bash .cursor/hooks/stop-gate.sh", "loop_limit": 6, "timeout": 600}'
+  echo '  {"command": "bash .cursor/hooks/stop-gate.sh", "loop_limit": 20, "timeout": 600}'
 else
   cat > "$DEST/.cursor/hooks.json" <<'JSON'
 {
   "version": 1,
   "hooks": {
     "stop": [
-      { "command": "bash .cursor/hooks/stop-gate.sh", "loop_limit": 6, "timeout": 600 }
+      { "command": "bash .cursor/hooks/stop-gate.sh", "loop_limit": 20, "timeout": 600 }
     ]
   }
 }

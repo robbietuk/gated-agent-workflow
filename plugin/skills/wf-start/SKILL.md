@@ -16,8 +16,10 @@ The workflow keeps its per-repo files in `.workflow/`. This skill ships them in 
   `.cursor/workflow.env` to `.workflow/config.env` (keeping every value), add any settings from
   `kit/config.env` it lacks, set up `.workflow/kit/` as below, and tell the user the old files
   (`.cursor/workflow.env`, `.cursor/workflow-scaling.md`, `.cursor/ci-checks.md`, `.workflow/templates/`,
-  `.cursor/skills/wf-*`, `.cursor/agents/` for this kit, and the stop entry in `.cursor/hooks.json`) can be
-  removed once the plugin is installed, so the old hook and skills do not run alongside it.
+  `.cursor/skills/wf-*`, `.cursor/agents/` for this kit, `.cursor/hooks/stop-gate.sh` and the stop entry in
+  `.cursor/hooks.json`) must be removed when the plugin is installed, so the old hook and skills do not run
+  alongside it. If you are the old copy of this skill (read from `.cursor/skills/`), say so and ask the user
+  to remove the old files first.
 - **No `.workflow/config.env`:** this repo has not used the workflow yet. Copy `kit/config.env` to
   `.workflow/config.env`, and `kit/scaling.md`, `kit/ci-procedure.md`, `kit/templates/` and `kit/VERSION` into
   `.workflow/kit/`. Ask the user for `BUILD_CMD`, `TEST_CMD` and (if the repo has one) `CI_CMD` such as
