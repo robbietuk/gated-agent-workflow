@@ -43,7 +43,11 @@ Read `references/tdd.md` the first time in a session.
   fixes; no shotgun changes), fix the code. It allows `MAX_STOP_RUNS` (5) runs; at the cap it tells you
   to run `/wf-escalate` with reason "stop-hook cap". Do that. Never keep going past it.
 - Before claiming green, run `TEST_CMD` yourself and read the result (see references/verification.md).
-- Refactor only while green. Then set slice `Status: reviewing`.
+- Refactor only while green.
+- **CI checks:** make sure `.workflow/ci-checks.md` exists and is current (`.cursor/ci-checks.md` says how to
+  find the repo's checks: `CI_CMD`, Makefile targets such as `make ci`, `.github/workflows/`). Run the fast
+  local checks for the files this slice touched (format, lint, static analysis, tests outside `TEST_CMD`)
+  and fix what fails. Never silence a check. Then set slice `Status: reviewing`.
 
 ## c. Two-stage review by a fresh subagent
 Read `references/review-loop.md` before the first review and before **every** fix round.
@@ -54,7 +58,8 @@ Read `references/review-loop.md` before the first review and before **every** fi
    `lens-reviewer` for the main risk.
 1. Invoke the planned `slice-reviewer` subagent(s) (`/slice-reviewer`) with everything they need in the
    prompt: `MODE`, the slice block, binding constraints from the design, `Base SHA`, `LOCK_SHA`, the locked
-   files, your one-paragraph summary, and the latest test output. Never your conversation history.
+   files, your one-paragraph summary, the latest test output, the CI checks you ran with their results,
+   and the path `.workflow/ci-checks.md`. Never your conversation history.
 2. Verdict **APPROVED** -> step d.
 3. Verdict **FIX** (code issues) -> increment `Review rounds: n/3` in outline.md, fix the Critical and
    Important code findings, re-run tests, re-run a fresh reviewer scoped to the findings. Minor findings
@@ -67,8 +72,8 @@ Set slice `Status: show-me`. Show the user, then **stop and wait**:
 - What the slice does, in two or three sentences, and which acceptance criteria / req IDs it covers.
 - How to run or see it (command, test, device steps).
 - `git diff --stat <Base SHA>` and the key hunks worth reading.
-- Test evidence: the command and the pass/fail counts from a fresh run this turn, plus "locked tests
-  unchanged" (`git diff --name-only $LOCK_SHA -- <locked files>` is empty).
+- Test evidence: the command and the pass/fail counts from a fresh run this turn, the CI checks run and their
+  results (and which checks are CI only), plus "locked tests unchanged" (`git diff --name-only $LOCK_SHA -- <locked files>` is empty).
 - Review tier and plan used ("tier S, 1 reviewer"), review rounds used, and any parked Minor findings.
 
 User replies:

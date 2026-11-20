@@ -36,6 +36,13 @@ For each acceptance criterion: met / not met / cannot verify, with file:line.
 - **Misunderstood:** the right thing built the wrong way.
 - Each AC has a test that would fail if the behaviour broke (name the production change that would break it).
 
+## CI pipeline (both stages, every mode)
+Read `.workflow/ci-checks.md` and, where it matters, the CI config it names (`Makefile` CI targets,
+`.github/workflows/`). Use `.cursor/ci-checks.md` section 4: would this slice fail a check the local run did
+not cover (stricter flags, another platform in the matrix, a coverage threshold)? Are its new tests picked
+up by CI? If the slice changes CI config, are checks weakened (`|| true`, `continue-on-error`, skipped
+tests, lowered thresholds)? A failing or weakened CI check is at least Important.
+
 ## Stage 2: Code quality
 Error handling (no swallowed errors), edge cases, resource and thread safety where touched, follows the
 patterns named in the design, tests assert real behaviour (not mocks), names, duplication, file growth.

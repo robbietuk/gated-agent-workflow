@@ -71,6 +71,7 @@ traceability matters.
 | `.cursor/hooks.json`, `.cursor/hooks/stop-gate.sh` | Stop hook: in build phase, guards locked tests and runs build + tests after every agent turn |
 | `.cursor/hooks/test-stop-gate.sh` | Self-test for the hook (temp git repo, all scenarios, JSON validation) |
 | `.cursor/workflow.env` | Your build/test commands, the iteration limits and the size thresholds |
+| `.cursor/ci-checks.md` | How the skills find and run the repo's own CI checks (`make ci`, `.github/workflows/`, ...) |
 | `.cursor/workflow-scaling.md` | How many researchers and reviewers to run, scaled to the size and risk of the work |
 | `.cursor/rules/agentic-workflow.mdc` | Always-on guardrails (locked tests, limits, escalate, no merge/push) |
 | `.workflow/templates/` | `spec.md`, `bug-report.md`, `design.md`, `outline.md`, `decisions.md`, `pr-description.md` |
@@ -90,7 +91,8 @@ traceability matters.
 2. Edit `.cursor/workflow.env`: set `TEST_CMD` (required) and `BUILD_CMD` (optional; leave empty if the test
    command builds). Both run from the repo root with `bash -c`. Examples:
    `BUILD_CMD="cmake --build build -j"` / `TEST_CMD="ctest --test-dir build --output-on-failure"`, or
-   `TEST_CMD="dotnet test"`, or `TEST_CMD="pytest -q"`.
+   `TEST_CMD="dotnet test"`, or `TEST_CMD="pytest -q"`. If the repo has a local CI entry point, set it too:
+   `CI_CMD="make ci"`.
 3. Make the scripts executable: `chmod +x .cursor/hooks/*.sh`
 4. Check the hook: `bash .cursor/hooks/test-stop-gate.sh` (needs `git` and `python3`). All lines should say PASS.
 5. Restart Cursor (or reload the window) so it picks up skills, subagents and hooks. Type `/wf` in the agent
@@ -100,7 +102,9 @@ traceability matters.
    ```
    .workflow/*
    !.workflow/templates/
+   !.workflow/ci-checks.md
    ```
+   `.workflow/ci-checks.md` (the repo's CI checks, found on first use) is worth committing so the team shares it.
    Either way `.workflow/active.env` and `*/last-run.log` are local state; ignoring them is sensible.
 
 **Windows:** the hook is a bash script. Cursor must be able to run it with bash: install Git for Windows
@@ -208,6 +212,11 @@ Never: keep going past a limit, or edit/loosen a locked test. The hook detects l
   suite; raise `timeout` in `hooks.json` (seconds) if needed.
 - **Models:** subagents use `model: inherit`. Set a specific model in the agent frontmatter if you want
   cheaper research or a stronger reviewer.
+- **CI checks:** set `CI_CMD` in `.cursor/workflow.env` if the repo has one local entry point (for example
+  `CI_CMD="make ci"`). Otherwise the skills read the `Makefile`, `.github/workflows/` and other CI config,
+  write what they find to `.workflow/ci-checks.md`, and run the checks that can run locally: the fast ones
+  before each show-me, all of them before the PR. Reviewers also read the pipeline: they flag changes that
+  would fail a CI-only job, tests CI would not pick up, and weakened checks.
 - **Review and research depth:** the number of subagents scales with the work. A diff is sized into tiers
   XS / S / M / L by changed lines and files (`TIER_XS_LINES`, `TIER_S_LINES`, `TIER_M_LINES` in
   `.cursor/workflow.env`), high risk moves it up a tier, and `.cursor/workflow-scaling.md` maps each tier to

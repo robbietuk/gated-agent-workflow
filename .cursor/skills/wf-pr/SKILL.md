@@ -17,6 +17,10 @@ through the lenses that matter for device software, before a human reads it.
 - **Fresh evidence:** run `BUILD_CMD` and `TEST_CMD` now (the stop hook is silent in this phase) and check
   `git diff --name-only <LOCK_SHA> -- <locked files>` is empty. Red? Stop: report it, and `/wf-escalate`
   if it is not a trivial fix.
+- **CI checks:** refresh `.workflow/ci-checks.md` if the CI files changed (see `.cursor/ci-checks.md`), then
+  run `CI_CMD` if set, otherwise every check marked "runs locally", on the whole branch. Failures become
+  findings for step b (fix within the PR fix rounds; plan-level ones escalate). Never silence a check.
+  Record checks run, results and CI-only checks in the PR description's test evidence.
 
 ## a. PR description
 Fill `$WORK_DIR/pr-description.md` from `.workflow/templates/pr-description.md`: summary, req/hazard IDs
@@ -31,7 +35,8 @@ Read `references/branch-review.md` for the dispatch prompts and ranking rules.
 1. Invoke the planned **`lens-reviewer` subagents in parallel**: from one combined reviewer (`LENS=all`,
    tier XS) up to one per lens per file group plus an integration reviewer (tier L, at most
    `MAX_REVIEW_AGENTS`). Each prompt is self-contained: lens(es), file group if any, MERGE_BASE, HEAD,
-   artifact paths, the req/hazard IDs, and parked Minor notes from outline.md. A dedicated
+   artifact paths, the req/hazard IDs, parked Minor notes from outline.md, the CI check results and the path
+   `.workflow/ci-checks.md`. A dedicated
    `safety-hazard` reviewer always runs when hazard IDs are in scope.
 2. Invoke the **`finding-verifier`** subagent with all lens findings verbatim when the tier calls for it
    (S with more than 3 findings, M, L). Keep only its KEPT list. At tier XS, check each finding yourself.

@@ -17,13 +17,17 @@ Other reviewers may cover the other lenses or file groups, so go deep on yours a
 - `FILES` (optional): the file group to review. Without it, review every changed file.
 - `MERGE_BASE` and `HEAD`.
 - Paths to `design.md` (or `spec.md` / `bug-report.md`), `outline.md`, `decisions.md`, `locked-tests.txt`.
+- `.workflow/ci-checks.md` and the CI check results from this run.
 
 ## Method
 1. Read the design/spec and outline first: know what was intended and which req/hazard IDs apply.
 2. Read `git diff --stat MERGE_BASE HEAD` then `git diff -U10 MERGE_BASE HEAD`.
 3. Open surrounding code only to check a specific risk you can name (callers of a changed contract,
    other holders of a lock, readers of a changed config key).
-4. Read-only. Never change files or git state. Do not spawn subagents.
+4. Read the CI pipeline for your lens (`.workflow/ci-checks.md`, then the `Makefile` CI targets or
+   `.github/workflows/` it names), using `.cursor/ci-checks.md` section 4. Every lens asks: would CI fail on
+   this where the local run could not show it? A failing local check is a finding in the lens it belongs to.
+5. Read-only. Never change files or git state. Do not spawn subagents.
 
 ## Lenses
 - **safety-hazard:** hazards in design.md and their mitigations actually implemented; unsafe defaults;
@@ -37,7 +41,8 @@ Other reviewers may cover the other lenses or file groups, so go deep on yours a
 - **integration:** (large branches split into file groups) read the design and every changed interface,
   header, message, config key or schema across all groups; look for mismatches between groups that no
   single group's reviewer could see.
-- **traceability-tests:** every req/hazard ID in the outline has code and a test that would fail without it;
+- **traceability-tests:** new tests are actually run by CI; CI config changes do not weaken checks
+  (skips, `|| true`, `continue-on-error`, lowered coverage); every req/hazard ID in the outline has code and a test that would fail without it;
   locked tests unchanged since their lock commits; tests assert behaviour not mocks; commit messages carry IDs.
 
 ## Spec silence

@@ -17,6 +17,8 @@
 ## Test evidence
 - **Command:** `<TEST_CMD>`
 - **Result:** <N passed, 0 failed> on commit <sha>, <date>
+- **CI checks (local):** <`CI_CMD` or each check from .workflow/ci-checks.md -> result, time>
+- **CI-only checks still to prove in the pipeline:** <list, or "none">
 - **Locked tests:** <list from locked-tests.txt> - unchanged since their lock commits
 - **Manual / bench verification:** <device, firmware, what was checked> (or "none")
 

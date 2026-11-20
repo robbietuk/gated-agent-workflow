@@ -15,6 +15,7 @@ MERGE_BASE=<sha>  HEAD=<sha>
 Read first: <WORK_DIR>/design.md (or spec.md / bug-report.md), <WORK_DIR>/outline.md,
             <WORK_DIR>/decisions.md, <WORK_DIR>/locked-tests.txt
 Req / hazard IDs in scope: <list>
+CI checks: .workflow/ci-checks.md; local results this run: <check -> result, each>; CI-only checks: <list>
 Parked Minor findings from slice reviews (triage whether any must be fixed before merge):
 <list from outline.md slice Notes, or "none">
 Review the whole branch diff through your lens only. Every finding needs a concrete failure scenario.

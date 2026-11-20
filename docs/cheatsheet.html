@@ -147,7 +147,7 @@
       <div class="ch"><span class="cmd">/wf-build</span><span class="chip c-agent">Agent · you at show-me</span></div>
       <p class="what">Build one slice at a time, tests first.</p>
       <dl class="rows">
-        <dt>Agent</dt><dd>Locks failing tests → implements (stop hook runs build + tests, max 5) → fresh review sized to the slice (max 3 fixes) → show-me.</dd>
+        <dt>Agent</dt><dd>Locks failing tests → implements (stop hook runs build + tests, max 5) → fast CI checks → fresh review sized to the slice (max 3 fixes) → show-me.</dd>
         <dt>You</dt><dd>See it run with test evidence; <b>approve</b> → commit → next slice.</dd>
         <dt>Makes</dt><dd>Commits, <code>locked-tests.txt</code>, slice status in <code>outline.md</code></dd>
       </dl>
@@ -167,7 +167,7 @@
       <div class="ch"><span class="cmd">/wf-pr</span><span class="chip c-agent">Agent → you</span></div>
       <p class="what">Review the whole branch, then hand over.</p>
       <dl class="rows">
-        <dt>Agent</dt><dd>Writes the PR description; sizes the diff, then 1–12 lens reviewers (+ a verifier) rank BLOCKER / IMPORTANT / NIT; fixes (max 2 rounds).</dd>
+        <dt>Agent</dt><dd>Runs the repo’s CI checks (<code>make ci</code>, workflows); sizes the diff, then 1–12 lens reviewers (+ verifier) rank findings; fixes (max 2 rounds).</dd>
         <dt>You</dt><dd><b>Read the code</b>; approve or send back. You merge — the agent never does.</dd>
         <dt>Makes</dt><dd><code>pr-description.md</code>, <code>fix(review)</code> commits</dd>
       </dl>

@@ -757,6 +757,33 @@ in one area, up to four in parallel for a broad set. The agent tells you
 the plan in one line before it starts, and records it in the show-me and
 the PR description. The thresholds are in
 <code>.cursor/workflow.env</code>.</p>
+<h3 id="the-repos-own-ci-checks">The repo's own CI checks</h3>
+<p>Your CI pipeline already defines what passing means in this repo, so
+the workflow runs it locally and reviewers read it.</p>
+<ul>
+<li><strong>Finding the checks.</strong> If <code>CI_CMD</code> is set
+(for example <code>make ci</code>), that is the entry point. Otherwise
+the agent reads the <code>Makefile</code> (targets such as
+<code>ci</code>, <code>check</code>, <code>lint</code>,
+<code>test</code>), <code>.github/workflows/</code> (jobs that run on
+pull requests and their steps), and other CI config, and writes the list
+to <code>.workflow/ci-checks.md</code>. Checks that need hardware,
+secrets or special runners are marked CI only.</li>
+<li><strong>Running them.</strong> Before each show-me: the fast checks
+(format, lint, static analysis) on the files the slice touched. Before
+the PR: <code>CI_CMD</code> or every check that can run locally, on the
+whole branch. Results go in the show-me and the PR description, with the
+CI-only checks listed so you know what the real pipeline still has to
+prove.</li>
+<li><strong>Reviewing them.</strong> Reviewers flag changes that would
+fail a CI check the local run could not cover (a stricter flag, another
+platform, a coverage threshold), new tests CI would not pick up, and any
+change that weakens CI (<code>|| true</code>,
+<code>continue-on-error</code>, skipped tests, lowered thresholds).</li>
+<li><strong>Never</strong> silence a check, add a suppression or lower a
+threshold to get green without your agreement, logged in
+<code>decisions.md</code>.</li>
+</ul>
 <h3 id="the-six-methods-of-branch-review">The six methods of branch
 review</h3>
 <ol type="1">
@@ -850,6 +877,8 @@ wf-brainstorm, wf-plan, wf-build, wf-debug, wf-escalate, wf-pr (each a
 folder with <code>SKILL.md</code>)</p></li>
 <li><p><code>.cursor/workflow-scaling.md</code> — how many researchers
 and reviewers to run for the size of the work</p></li>
+<li><p><code>.cursor/ci-checks.md</code> — how the skills find and run
+the repo's CI checks</p></li>
 <li><p><code>.cursor/agents/</code> — <code>researcher.md</code>,
 <code>slice-reviewer.md</code>, <code>lens-reviewer.md</code>,
 <code>finding-verifier.md</code> (all readonly: true)</p></li>
@@ -867,7 +896,10 @@ rule)</p></li>
 </ul></li>
 <li><p><strong>Set BUILD_CMD and TEST_CMD</strong> in
 <code>.cursor/workflow.env</code> to your project's build and test
-commands. Leave the MAX_* limits at their defaults to start.</p></li>
+commands. If the repo has one local CI entry point, set
+<code>CI_CMD</code> too (for example <code>CI_CMD="make ci"</code>);
+otherwise the skills find the checks themselves. Leave the MAX_* limits
+at their defaults to start.</p></li>
 <li><p><strong>Make the hook executable</strong>: <code>chmod +x</code>
 <code>.cursor/hooks/stop-gate.sh</code>.</p></li>
 <li><p><strong>Windows</strong>: the hook runs as bash
@@ -1058,6 +1090,10 @@ continue. Same chat through planning; a new chat for
 <code>/wf-build</code> and <code>/wf-pr</code>.</p></li>
 <li><p><strong>Per slice</strong>: lock failing tests → implement (stop
 hook) → review scaled to the slice → show-me → commit.</p></li>
+<li><p><strong>CI checks</strong>: fast ones before each show-me, all
+local ones before the PR (<code>CI_CMD</code>, e.g.
+<code>make ci</code>, or found in the Makefile /
+<code>.github/workflows/</code>).</p></li>
 <li><p><strong>Review depth</strong>: XS 1 light reviewer · S 1–2 · M 5
 lenses + verifier · L split by lens and files, up to 12. High risk moves
 up a tier.</p></li>

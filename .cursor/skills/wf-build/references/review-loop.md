@@ -14,6 +14,7 @@ BASE_SHA=<Base SHA>   HEAD=working tree   LOCK_SHA=<LOCK_SHA>
 Locked tests: <paths from locked-tests.txt for this slice>
 Implementer summary: <one paragraph; what changed, any doubts>
 Latest test run: <command> -> <counts>; full log at <WORK_DIR>/last-run.log
+CI checks run: <check -> result, each>; CI checks list: .workflow/ci-checks.md
 ```
 Do not pre-judge findings ("do not flag X", "at most Minor"). Do not ask it to re-run the suite.
 

@@ -360,6 +360,15 @@ The agent sizes each diff before reviewing and picks a plan from `.cursor/workfl
 
 A dedicated safety/hazard reviewer always runs when hazard IDs are in scope. Research scales the same way: one researcher for a few questions in one area, up to four in parallel for a broad set. The agent tells you the plan in one line before it starts, and records it in the show-me and the PR description. The thresholds are in `.cursor/workflow.env`.
 
+### The repo's own CI checks
+
+Your CI pipeline already defines what passing means in this repo, so the workflow runs it locally and reviewers read it.
+
+- **Finding the checks.** If `CI_CMD` is set (for example `make ci`), that is the entry point. Otherwise the agent reads the `Makefile` (targets such as `ci`, `check`, `lint`, `test`), `.github/workflows/` (jobs that run on pull requests and their steps), and other CI config, and writes the list to `.workflow/ci-checks.md`. Checks that need hardware, secrets or special runners are marked CI only.
+- **Running them.** Before each show-me: the fast checks (format, lint, static analysis) on the files the slice touched. Before the PR: `CI_CMD` or every check that can run locally, on the whole branch. Results go in the show-me and the PR description, with the CI-only checks listed so you know what the real pipeline still has to prove.
+- **Reviewing them.** Reviewers flag changes that would fail a CI check the local run could not cover (a stricter flag, another platform, a coverage threshold), new tests CI would not pick up, and any change that weakens CI (`|| true`, `continue-on-error`, skipped tests, lowered thresholds).
+- **Never** silence a check, add a suppression or lower a threshold to get green without your agreement, logged in `decisions.md`.
+
 ### The six methods of branch review
 
 1.  **Whole branch vs design**: review the full diff against `design.md`, not slice by slice. Cross-slice interactions only show here.
@@ -404,6 +413,7 @@ Setup is a copy, two settings and a permission change.
     - `.cursor/skills/` — wf-start, wf-research, wf-brainstorm, wf-plan, wf-build, wf-debug, wf-escalate, wf-pr (each a folder with `SKILL.md`)
 
     - `.cursor/workflow-scaling.md` — how many researchers and reviewers to run for the size of the work
+    - `.cursor/ci-checks.md` — how the skills find and run the repo's CI checks
     - `.cursor/agents/` — `researcher.md`, `slice-reviewer.md`, `lens-reviewer.md`, `finding-verifier.md` (all readonly: true)
 
     - `.cursor/hooks.json` and `.cursor/hooks/stop-gate.sh`
@@ -416,7 +426,7 @@ Setup is a copy, two settings and a permission change.
 
     - `README.md`, `THIRD-PARTY-NOTICES.md`
 
-2.  **Set BUILD_CMD and TEST_CMD** in `.cursor/workflow.env` to your project's build and test commands. Leave the MAX\_\* limits at their defaults to start.
+2.  **Set BUILD_CMD and TEST_CMD** in `.cursor/workflow.env` to your project's build and test commands. If the repo has one local CI entry point, set `CI_CMD` too (for example `CI_CMD="make ci"`); otherwise the skills find the checks themselves. Leave the MAX\_\* limits at their defaults to start.
 
 3.  **Make the hook executable**: `chmod +x` `.cursor/hooks/stop-gate.sh`.
 
@@ -497,6 +507,8 @@ One page: commands per track, who acts at each gate, and the limits.
 - **Hand-offs**: every command ends by asking to continue. Same chat through planning; a new chat for `/wf-build` and `/wf-pr`.
 
 - **Per slice**: lock failing tests → implement (stop hook) → review scaled to the slice → show-me → commit.
+
+- **CI checks**: fast ones before each show-me, all local ones before the PR (`CI_CMD`, e.g. `make ci`, or found in the Makefile / `.github/workflows/`).
 
 - **Review depth**: XS 1 light reviewer · S 1–2 · M 5 lenses + verifier · L split by lens and files, up to 12. High risk moves up a tier.
 
