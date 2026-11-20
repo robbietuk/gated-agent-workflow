@@ -3,9 +3,13 @@
 Subagents start with a fresh context. Each prompt must carry everything the reviewer needs; never paste
 this conversation. Hand over paths and SHAs rather than large pasted diffs.
 
-## lens-reviewer prompt (one per lens, run in parallel)
+## lens-reviewer prompt (as many as the tier plan says, run in parallel)
+How many reviewers, which lenses each covers and whether files are split into groups comes from
+`.cursor/workflow-scaling.md` section 4.
 ```
-LENS=<safety-hazard | concurrency | error-handling | compatibility-config | traceability-tests>
+LENS=<safety-hazard | concurrency | error-handling | compatibility-config | traceability-tests | integration | all,
+      or a comma-separated list>
+FILES=<all changed files, or this reviewer's file group (tier L)>
 Work item: <WORK_DIR>
 MERGE_BASE=<sha>  HEAD=<sha>
 Read first: <WORK_DIR>/design.md (or spec.md / bug-report.md), <WORK_DIR>/outline.md,

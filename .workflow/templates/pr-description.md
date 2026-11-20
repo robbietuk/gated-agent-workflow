@@ -24,7 +24,8 @@
 <Summarised from decisions.md: date - decision - why.>
 
 ## Branch review
-- **Lenses run:** safety/hazard, concurrency, error handling, compatibility/config, traceability + test adequacy
+- **Review plan:** tier <XS / S / M / L> (<N> changed files, <N> changed lines<, risk bump: why>) - <reviewers run, e.g. 5 lens reviewers + verifier>
+- **Lenses run:** <safety/hazard, concurrency, error handling, compatibility/config, traceability + test adequacy, integration>
 - **Fixed:** <NIT / IMPORTANT findings fixed, with commit>
 - **Open:** <none, or what and why>
 

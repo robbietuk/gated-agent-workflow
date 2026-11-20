@@ -447,7 +447,7 @@ a.home { color: #B8AFF5; text-decoration: none; }
 </div>
 <div class="dcard">
 <p class="dtitle">Fresh review</p>
-<p class="dtxt">A new agent checks the spec, then code quality. Max 3 fix rounds.</p>
+<p class="dtxt">A new agent checks spec, then quality, sized to the slice. Max 3 fix rounds.</p>
 </div>
 <div class="dcard">
 <p class="dtitle">Show-me + commit</p>
@@ -513,7 +513,7 @@ a.home { color: #B8AFF5; text-decoration: none; }
 </div>
 <div class="dcard">
 <p class="dtitle">Branch review</p>
-<p class="dtxt">Parallel reviewers on the whole diff, then a verify pass. Max 2 fix rounds.</p>
+<p class="dtxt">Reviewers scaled to the diff: 1 for a few lines, up to 12 for a big branch. Max 2 fix rounds.</p>
 </div>
 <div class="dcard">
 <p class="dtitle">Your code read</p>
@@ -601,7 +601,7 @@ a.home { color: #B8AFF5; text-decoration: none; }
 </div>
 <div class="card">
 <h3>Parallel narrow lenses</h3>
-<p class="txt-sm">One fresh reviewer each: safety, concurrency, error handling, compatibility, traceability.</p>
+<p class="txt-sm">Safety, concurrency, errors, compatibility, traceability. Sized to the diff: one reviewer for a few lines, one per lens and file group for a big branch.</p>
 </div>
 <div class="card">
 <h3>Verify pass</h3>
@@ -630,7 +630,7 @@ a.home { color: #B8AFF5; text-decoration: none; }
 <p class="code-line"><span class="kw">when:</span> all slices committed, before PR</p>
 <p class="code-line">1. Diff branch vs main; read design</p>
 <p class="code-line">   and outline</p>
-<p class="code-line">2. One fresh reviewer per lens:</p>
+<p class="code-line">2. Size the diff; reviewers per lens:</p>
 <p class="code-line">   safety, concurrency, errors,</p>
 <p class="code-line">   compatibility, traceability</p>
 <p class="code-line">3. Verifier keeps findings with exact</p>

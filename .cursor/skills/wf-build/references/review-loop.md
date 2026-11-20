@@ -1,8 +1,10 @@
 # Slice review loop (wf-build step c). Re-read before every fix round.
 
 ## Dispatch
-Invoke `slice-reviewer` with a self-contained prompt (it has a fresh context and cannot see this chat):
+Invoke `slice-reviewer` with a self-contained prompt (it has a fresh context and cannot see this chat). The
+number of reviewers and their `MODE` come from the tier you picked (`.cursor/workflow-scaling.md` section 3):
 ```
+MODE=<light | full | spec | quality>
 Review slice <SLICE> of work item <WORK_DIR>.
 Slice block (verbatim from outline.md):
 <paste>
@@ -21,7 +23,7 @@ Do not pre-judge findings ("do not flag X", "at most Minor"). Do not ask it to r
   1. Increment `Review rounds: n/<MAX_REVIEW_ROUNDS>` in the slice block **before** fixing.
   2. Fix every Critical and Important **code** finding. Minor -> slice `Notes` (they go to the PR review).
   3. Re-run the focused tests and `TEST_CMD`; keep the output.
-  4. Dispatch a **fresh** `slice-reviewer`, scoped: the original findings list, the slice block, and the
+  4. Dispatch a **fresh** `slice-reviewer` (`MODE=light` unless the fix diff is itself tier S or larger), scoped: the original findings list, the slice block, and the
      fix diff (`git diff` since the last review). It answers ADDRESSED / NOT ADDRESSED per finding and
      flags new breakage in the fix diff only.
 - **ESCALATE** (any finding of kind *plan*: the outline, design, an acceptance criterion or a locked test is

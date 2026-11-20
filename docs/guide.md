@@ -340,18 +340,31 @@ Review happens twice: per slice to catch local mistakes early, and on the whole 
 
 |                           | Per-slice review (`/wf-build`)              | Branch review (`/wf-pr`)                                          |
 |---------------------------|-------------------------------------------|-----------------------------------------------------------------|
-| Reviewer                  | Fresh slice-reviewer subagent (read-only) | Parallel lens-reviewer subagents + finding-verifier (read-only) |
+| Reviewer                  | Fresh slice-reviewer subagent(s), scaled to the slice (read-only) | lens-reviewer subagents scaled to the diff + finding-verifier (read-only) |
 | Compares against          | The slice in `outline.md`                   | `design.md`                                                       |
 | Scope                     | One slice's diff                          | Whole branch diff                                               |
 | Stages                    | 1: spec compliance; 2: code quality       | Lenses → verify → rank                                          |
 | On a code issue           | Fix, max 3 rounds                         | NIT: fix. IMPORTANT: fix, max 2 rounds                          |
 | On a plan issue / BLOCKER | Escalate                                  | Escalate                                                        |
 
+### Review depth scales with the work
+
+The agent sizes each diff before reviewing and picks a plan from `.cursor/workflow-scaling.md`. High risk (a `high` risk flag, hazard IDs, threading or timing code, alarm or limit logic, config or data formats, device-facing interfaces) moves the tier up one step.
+
+| Tier | Size (changed lines / files) | Slice review | Branch review |
+|---|---|---|---|
+| XS | up to 50 / 2 | 1 light reviewer | 1 reviewer covering every lens |
+| S | up to 400 / 10 | 1 full reviewer | 2 reviewers (grouped lenses); verifier if more than 3 findings |
+| M | up to 2,000 / 40 | 2 reviewers: spec, then quality | 5 lens reviewers + verifier |
+| L | more | Stop: the slice is too big, split it | 5 lenses × file groups + an integration reviewer, up to 12, + verifier |
+
+A dedicated safety/hazard reviewer always runs when hazard IDs are in scope. Research scales the same way: one researcher for a few questions in one area, up to four in parallel for a broad set. The agent tells you the plan in one line before it starts, and records it in the show-me and the PR description. The thresholds are in `.cursor/workflow.env`.
+
 ### The six methods of branch review
 
 1.  **Whole branch vs design**: review the full diff against `design.md`, not slice by slice. Cross-slice interactions only show here.
 
-2.  **Parallel narrow lenses**: one lens-reviewer per lens: safety/hazard, concurrency, error handling, compatibility/config, traceability + test adequacy. A narrow brief finds more than one broad one.
+2.  **Parallel narrow lenses** (scaled to the diff, see above): one lens-reviewer per lens: safety/hazard, concurrency, error handling, compatibility/config, traceability + test adequacy. A narrow brief finds more than one broad one.
 
 3.  **Verify pass**: finding-verifier keeps only findings with a concrete failure scenario. This cuts noise before you see it.
 
@@ -390,6 +403,7 @@ Setup is a copy, two settings and a permission change.
 
     - `.cursor/skills/` — wf-start, wf-research, wf-brainstorm, wf-plan, wf-build, wf-debug, wf-escalate, wf-pr (each a folder with `SKILL.md`)
 
+    - `.cursor/workflow-scaling.md` — how many researchers and reviewers to run for the size of the work
     - `.cursor/agents/` — `researcher.md`, `slice-reviewer.md`, `lens-reviewer.md`, `finding-verifier.md` (all readonly: true)
 
     - `.cursor/hooks.json` and `.cursor/hooks/stop-gate.sh`
@@ -482,7 +496,9 @@ One page: commands per track, who acts at each gate, and the limits.
 
 - **Hand-offs**: every command ends by asking to continue. Same chat through planning; a new chat for `/wf-build` and `/wf-pr`.
 
-- **Per slice**: lock failing tests → implement (stop hook) → two-stage review → show-me → commit.
+- **Per slice**: lock failing tests → implement (stop hook) → review scaled to the slice → show-me → commit.
+
+- **Review depth**: XS 1 light reviewer · S 1–2 · M 5 lenses + verifier · L split by lens and files, up to 12. High risk moves up a tier.
 
 - **Branch review**: lenses → verify → rank. NIT: fix. IMPORTANT: fix (2 rounds). BLOCKER: escalate.
 

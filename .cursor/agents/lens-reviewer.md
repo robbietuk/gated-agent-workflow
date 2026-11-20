@@ -1,16 +1,20 @@
 ---
 name: lens-reviewer
-description: Read-only branch reviewer that looks at the whole branch diff through ONE lens (safety/hazard, concurrency, error handling, compatibility/config, or traceability + test adequacy). Run several in parallel from /wf-pr, one per lens.
+description: Read-only branch reviewer that looks at the branch diff through one lens or a few (safety/hazard, concurrency, error handling, compatibility/config, traceability + test adequacy, integration, or all). /wf-pr runs from one to many in parallel, scaled to the size of the diff.
 model: inherit
 readonly: true
 is_background: false
 ---
 
-You review a whole feature branch through a single lens. Other reviewers cover the other lenses, so go
-deep on yours and ignore the rest.
+You review a feature branch through the lens or lenses you are given, over the files you are given.
+Other reviewers may cover the other lenses or file groups, so go deep on yours and ignore the rest. With
+`LENS=all` you are the only reviewer: cover every lens, briefly.
 
 ## Input (the parent must pass all of it)
-- `LENS`: one of `safety-hazard`, `concurrency`, `error-handling`, `compatibility-config`, `traceability-tests`.
+- `LENS`: one of `safety-hazard`, `concurrency`, `error-handling`, `compatibility-config`,
+  `traceability-tests`, `integration`; a comma-separated list of them; or `all` (every lens except
+  integration, briefly; used for small diffs). With several lenses, report a section per lens.
+- `FILES` (optional): the file group to review. Without it, review every changed file.
 - `MERGE_BASE` and `HEAD`.
 - Paths to `design.md` (or `spec.md` / `bug-report.md`), `outline.md`, `decisions.md`, `locked-tests.txt`.
 
@@ -30,6 +34,9 @@ deep on yours and ignore the rest.
   error messages and logging useful to service engineers.
 - **compatibility-config:** config keys, defaults, migrations, file/protocol/API compatibility with older
   firmware and data, feature flags, build options.
+- **integration:** (large branches split into file groups) read the design and every changed interface,
+  header, message, config key or schema across all groups; look for mismatches between groups that no
+  single group's reviewer could see.
 - **traceability-tests:** every req/hazard ID in the outline has code and a test that would fail without it;
   locked tests unchanged since their lock commits; tests assert behaviour not mocks; commit messages carry IDs.
 

@@ -52,7 +52,7 @@ traceability matters.
                          -> slice-reviewer (spec, then quality; max 3 rounds)
                          -> show-me ----------------------------------> [you approve] -> commit
                          |
-  /wf-pr            pr-description.md -> 5 lens-reviewers -> finding-verifier
+  /wf-pr            pr-description.md -> lens-reviewers (1 to 12, scaled to the diff) -> finding-verifier
                          -> fix NIT/IMPORTANT (max 2 rounds) ----------> your code read
                          |
   /wf-escalate  <--- any limit hit / plan issue / you say no:
@@ -70,7 +70,8 @@ traceability matters.
 | `.cursor/agents/` | Read-only subagents: `researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier` |
 | `.cursor/hooks.json`, `.cursor/hooks/stop-gate.sh` | Stop hook: in build phase, guards locked tests and runs build + tests after every agent turn |
 | `.cursor/hooks/test-stop-gate.sh` | Self-test for the hook (temp git repo, all scenarios, JSON validation) |
-| `.cursor/workflow.env` | Your build/test commands and the iteration limits |
+| `.cursor/workflow.env` | Your build/test commands, the iteration limits and the size thresholds |
+| `.cursor/workflow-scaling.md` | How many researchers and reviewers to run, scaled to the size and risk of the work |
 | `.cursor/rules/agentic-workflow.mdc` | Always-on guardrails (locked tests, limits, escalate, no merge/push) |
 | `.workflow/templates/` | `spec.md`, `bug-report.md`, `design.md`, `outline.md`, `decisions.md`, `pr-description.md` |
 
@@ -207,6 +208,11 @@ Never: keep going past a limit, or edit/loosen a locked test. The hook detects l
   suite; raise `timeout` in `hooks.json` (seconds) if needed.
 - **Models:** subagents use `model: inherit`. Set a specific model in the agent frontmatter if you want
   cheaper research or a stronger reviewer.
+- **Review and research depth:** the number of subagents scales with the work. A diff is sized into tiers
+  XS / S / M / L by changed lines and files (`TIER_XS_LINES`, `TIER_S_LINES`, `TIER_M_LINES` in
+  `.cursor/workflow.env`), high risk moves it up a tier, and `.cursor/workflow-scaling.md` maps each tier to
+  a plan: one light reviewer for a few lines, up to `MAX_REVIEW_AGENTS` reviewers split by lens and file
+  group for a large branch. Research scales by question count and code areas, up to `MAX_RESEARCHERS`.
 - **Lenses:** edit `.cursor/agents/lens-reviewer.md` and `wf-pr/references/branch-review.md` to add or
   change lenses (e.g. cybersecurity, performance).
 - **Templates:** edit `.workflow/templates/` to match your SRS / hazard-analysis IDs and PR template.

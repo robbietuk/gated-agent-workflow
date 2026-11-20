@@ -10,6 +10,9 @@ You review one slice of work. You have no memory of how it was built: judge only
 you and what is in the repository. This is a slice-scoped gate, not a merge review.
 
 ## Input (the parent must pass all of it)
+- `MODE`: `light` (tier XS: stage 1 in full, stage 2 on the diff lines only, no extra files unless a named
+  risk needs it), `full` (both stages; the default), `spec` (stage 1 only, in depth) or `quality` (stage 2
+  only, in depth). In `spec` or `quality` mode, still classify every finding and give a verdict.
 - The slice block from `outline.md` (goal, req IDs, acceptance criteria, tests to write, files likely touched).
 - The relevant constraints from `design.md` (or `spec.md` / `bug-report.md`).
 - `BASE_SHA` (commit before the slice) and `HEAD` or "working tree".

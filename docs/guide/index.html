@@ -675,8 +675,10 @@ the whole branch to catch what only shows when slices meet.</p>
 <tbody>
 <tr class="odd">
 <td>Reviewer</td>
-<td>Fresh slice-reviewer subagent (read-only)</td>
-<td>Parallel lens-reviewer subagents + finding-verifier (read-only)</td>
+<td>Fresh slice-reviewer subagent(s), scaled to the slice
+(read-only)</td>
+<td>lens-reviewer subagents scaled to the diff + finding-verifier
+(read-only)</td>
 </tr>
 <tr class="even">
 <td>Compares against</td>
@@ -705,16 +707,66 @@ the whole branch to catch what only shows when slices meet.</p>
 </tr>
 </tbody>
 </table>
+<h3 id="review-depth-scales-with-the-work">Review depth scales with the
+work</h3>
+<p>The agent sizes each diff before reviewing and picks a plan from
+<code>.cursor/workflow-scaling.md</code>. High risk (a <code>high</code>
+risk flag, hazard IDs, threading or timing code, alarm or limit logic,
+config or data formats, device-facing interfaces) moves the tier up one
+step.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Tier</th>
+<th>Size (changed lines / files)</th>
+<th>Slice review</th>
+<th>Branch review</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>XS</td>
+<td>up to 50 / 2</td>
+<td>1 light reviewer</td>
+<td>1 reviewer covering every lens</td>
+</tr>
+<tr class="even">
+<td>S</td>
+<td>up to 400 / 10</td>
+<td>1 full reviewer</td>
+<td>2 reviewers (grouped lenses); verifier if more than 3 findings</td>
+</tr>
+<tr class="odd">
+<td>M</td>
+<td>up to 2,000 / 40</td>
+<td>2 reviewers: spec, then quality</td>
+<td>5 lens reviewers + verifier</td>
+</tr>
+<tr class="even">
+<td>L</td>
+<td>more</td>
+<td>Stop: the slice is too big, split it</td>
+<td>5 lenses × file groups + an integration reviewer, up to 12, +
+verifier</td>
+</tr>
+</tbody>
+</table>
+<p>A dedicated safety/hazard reviewer always runs when hazard IDs are in
+scope. Research scales the same way: one researcher for a few questions
+in one area, up to four in parallel for a broad set. The agent tells you
+the plan in one line before it starts, and records it in the show-me and
+the PR description. The thresholds are in
+<code>.cursor/workflow.env</code>.</p>
 <h3 id="the-six-methods-of-branch-review">The six methods of branch
 review</h3>
 <ol type="1">
 <li><p><strong>Whole branch vs design</strong>: review the full diff
 against <code>design.md</code>, not slice by slice. Cross-slice
 interactions only show here.</p></li>
-<li><p><strong>Parallel narrow lenses</strong>: one lens-reviewer per
-lens: safety/hazard, concurrency, error handling, compatibility/config,
-traceability + test adequacy. A narrow brief finds more than one broad
-one.</p></li>
+<li><p><strong>Parallel narrow lenses</strong> (scaled to the diff, see
+above): one lens-reviewer per lens: safety/hazard, concurrency, error
+handling, compatibility/config, traceability + test adequacy. A narrow
+brief finds more than one broad one.</p></li>
 <li><p><strong>Verify pass</strong>: finding-verifier keeps only
 findings with a concrete failure scenario. This cuts noise before you
 see it.</p></li>
@@ -796,6 +848,8 @@ as you would any other tool output.</p>
 <li><p><code>.cursor/skills/</code> — wf-start, wf-research,
 wf-brainstorm, wf-plan, wf-build, wf-debug, wf-escalate, wf-pr (each a
 folder with <code>SKILL.md</code>)</p></li>
+<li><p><code>.cursor/workflow-scaling.md</code> — how many researchers
+and reviewers to run for the size of the work</p></li>
 <li><p><code>.cursor/agents/</code> — <code>researcher.md</code>,
 <code>slice-reviewer.md</code>, <code>lens-reviewer.md</code>,
 <code>finding-verifier.md</code> (all readonly: true)</p></li>
@@ -1003,7 +1057,10 @@ lock failing test, root cause) → <code>/wf-build</code> (one slice) →
 continue. Same chat through planning; a new chat for
 <code>/wf-build</code> and <code>/wf-pr</code>.</p></li>
 <li><p><strong>Per slice</strong>: lock failing tests → implement (stop
-hook) → two-stage review → show-me → commit.</p></li>
+hook) → review scaled to the slice → show-me → commit.</p></li>
+<li><p><strong>Review depth</strong>: XS 1 light reviewer · S 1–2 · M 5
+lenses + verifier · L split by lens and files, up to 12. High risk moves
+up a tier.</p></li>
 <li><p><strong>Branch review</strong>: lenses → verify → rank. NIT: fix.
 IMPORTANT: fix (2 rounds). BLOCKER: escalate.</p></li>
 <li><p><strong>Always</strong>: never loosen a locked test; never go

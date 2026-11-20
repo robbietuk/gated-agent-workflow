@@ -47,9 +47,14 @@ Read `references/tdd.md` the first time in a session.
 
 ## c. Two-stage review by a fresh subagent
 Read `references/review-loop.md` before the first review and before **every** fix round.
-1. Invoke the `slice-reviewer` subagent (`/slice-reviewer`) with everything it needs in the prompt: the
-   slice block, binding constraints from the design, `Base SHA`, `LOCK_SHA`, the locked files, your
-   one-paragraph summary, and the latest test output. Never your conversation history.
+0. **Size the review.** Measure the slice diff against `Base SHA` and its risk, pick the tier and the review
+   plan from `.cursor/workflow-scaling.md` (sections 1-3), and record it in the slice `Notes`
+   ("Review: tier S, 1 reviewer"). Tier XS: one light review. Tier M: separate spec and quality reviewers.
+   Tier L: stop, the slice is too big; recommend `/wf-escalate` to split it. High risk: add one
+   `lens-reviewer` for the main risk.
+1. Invoke the planned `slice-reviewer` subagent(s) (`/slice-reviewer`) with everything they need in the
+   prompt: `MODE`, the slice block, binding constraints from the design, `Base SHA`, `LOCK_SHA`, the locked
+   files, your one-paragraph summary, and the latest test output. Never your conversation history.
 2. Verdict **APPROVED** -> step d.
 3. Verdict **FIX** (code issues) -> increment `Review rounds: n/3` in outline.md, fix the Critical and
    Important code findings, re-run tests, re-run a fresh reviewer scoped to the findings. Minor findings
@@ -64,7 +69,7 @@ Set slice `Status: show-me`. Show the user, then **stop and wait**:
 - `git diff --stat <Base SHA>` and the key hunks worth reading.
 - Test evidence: the command and the pass/fail counts from a fresh run this turn, plus "locked tests
   unchanged" (`git diff --name-only $LOCK_SHA -- <locked files>` is empty).
-- Review rounds used and any parked Minor findings.
+- Review tier and plan used ("tier S, 1 reviewer"), review rounds used, and any parked Minor findings.
 
 User replies:
 - **Approve** -> commit the slice: `git add` the slice's files, `git commit -m "feat(<SLICE>): <goal>

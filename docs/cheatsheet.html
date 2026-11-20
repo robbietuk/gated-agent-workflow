@@ -147,7 +147,7 @@
       <div class="ch"><span class="cmd">/wf-build</span><span class="chip c-agent">Agent · you at show-me</span></div>
       <p class="what">Build one slice at a time, tests first.</p>
       <dl class="rows">
-        <dt>Agent</dt><dd>Locks failing tests → implements (stop hook runs build + tests, max 5) → fresh two-stage review (max 3 fixes) → show-me.</dd>
+        <dt>Agent</dt><dd>Locks failing tests → implements (stop hook runs build + tests, max 5) → fresh review sized to the slice (max 3 fixes) → show-me.</dd>
         <dt>You</dt><dd>See it run with test evidence; <b>approve</b> → commit → next slice.</dd>
         <dt>Makes</dt><dd>Commits, <code>locked-tests.txt</code>, slice status in <code>outline.md</code></dd>
       </dl>
@@ -167,7 +167,7 @@
       <div class="ch"><span class="cmd">/wf-pr</span><span class="chip c-agent">Agent → you</span></div>
       <p class="what">Review the whole branch, then hand over.</p>
       <dl class="rows">
-        <dt>Agent</dt><dd>Writes the PR description; 5 lens reviewers + a verifier rank BLOCKER / IMPORTANT / NIT; fixes (max 2 rounds).</dd>
+        <dt>Agent</dt><dd>Writes the PR description; sizes the diff, then 1–12 lens reviewers (+ a verifier) rank BLOCKER / IMPORTANT / NIT; fixes (max 2 rounds).</dd>
         <dt>You</dt><dd><b>Read the code</b>; approve or send back. You merge — the agent never does.</dd>
         <dt>Makes</dt><dd><code>pr-description.md</code>, <code>fix(review)</code> commits</dd>
       </dl>
@@ -191,7 +191,7 @@
       <p class="seq"><b>Feature</b> — new behaviour worth designing<br><code>/wf-start → /wf-research → /wf-brainstorm → /wf-plan → /wf-build → /wf-pr</code></p>
       <p class="seq"><b>Bug</b> — existing behaviour is wrong<br><code>/wf-start → /wf-debug → /wf-build → /wf-pr</code></p>
       <p class="seq"><b>Small change</b> — ~1 hour, 1–3 files<br><code>/wf-start → /wf-plan → /wf-build → /wf-pr</code></p>
-      <p class="files" style="margin:5px 0 0"><b style="color:var(--ink)">Files:</b> <code>.workflow/active.env</code> tracks the current item and phase; every artifact lives in <code>.workflow/&lt;date&gt;-&lt;slug&gt;/</code></p>
+      <p class="files" style="margin:4px 0 0"><b style="color:var(--ink)">Files:</b> <code>.workflow/&lt;date&gt;-&lt;slug&gt;/</code> · state in <code>active.env</code></p>
     </div>
     <div class="panel">
       <h3>Limits — then escalate</h3>
@@ -201,7 +201,7 @@
         <tr><td>PR fix → re-run rounds</td><td>2</td></tr>
         <tr><td>Planning rounds, then revisit spec</td><td>3</td></tr>
       </table>
-      <p style="margin:4px 0 0;font-size:7.4pt">Tune in <code>.cursor/workflow.env</code></p>
+      <p style="margin:4px 0 0;font-size:7.2pt"><b style="color:var(--ink)">Review depth</b> scales with the diff: XS 1 light · S 1–2 · M 5 + verifier · L up to 12. High risk = one tier up. Tune in <code>workflow.env</code></p>
     </div>
     <div class="panel">
       <h3>Never</h3>

@@ -23,8 +23,12 @@ put in its prompt. The prompt contains **only**:
   recommendations. Return the full research.md text."
 
 Do **not** pass the spec, bug report, design, outline, ticket text or your own theory. Do not hint at the
-solution in your wording. If the question set is large (more than ~10 questions touching unrelated areas),
-you may run two researcher subagents in parallel, each with a disjoint subset of the questions.
+solution in your wording.
+
+**Scale to the question set.** Count the questions and the distinct code areas they touch, then pick the
+number of researchers from `.cursor/workflow-scaling.md` section 5: one researcher for a narrow set, up to
+`MAX_RESEARCHERS` in parallel (one per area, disjoint questions) for a broad one. Tell the user the plan in
+one line before dispatching, e.g. "12 questions across 2 unrelated areas: 2 researchers".
 
 ## 2. Check and save
 - Write the result to `$WORK_DIR/research.md` (merge parallel results under one header, keep the

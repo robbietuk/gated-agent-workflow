@@ -25,11 +25,16 @@ Fill `$WORK_DIR/pr-description.md` from `.workflow/templates/pr-description.md`:
 
 ## b. Branch code review
 Read `references/branch-review.md` for the dispatch prompts and ranking rules.
-1. Invoke **five `lens-reviewer` subagents in parallel**, one per lens: `safety-hazard`, `concurrency`,
-   `error-handling`, `compatibility-config`, `traceability-tests`. Each prompt is self-contained: lens,
-   MERGE_BASE, HEAD, artifact paths, the req/hazard IDs, and parked Minor notes from outline.md.
-   Skip a lens only if it clearly cannot apply (e.g. no threads anywhere in the diff) and say so.
-2. Invoke the **`finding-verifier`** subagent with all lens findings verbatim. Keep only its KEPT list.
+0. **Size the review.** Measure the branch diff against `MERGE_BASE` and its risk, pick the tier and the
+   review plan from `.cursor/workflow-scaling.md` (sections 1, 2 and 4), and tell the user in one line
+   before dispatching ("tier M: 5 lens reviewers + verifier"). Record it in the PR description.
+1. Invoke the planned **`lens-reviewer` subagents in parallel**: from one combined reviewer (`LENS=all`,
+   tier XS) up to one per lens per file group plus an integration reviewer (tier L, at most
+   `MAX_REVIEW_AGENTS`). Each prompt is self-contained: lens(es), file group if any, MERGE_BASE, HEAD,
+   artifact paths, the req/hazard IDs, and parked Minor notes from outline.md. A dedicated
+   `safety-hazard` reviewer always runs when hazard IDs are in scope.
+2. Invoke the **`finding-verifier`** subagent with all lens findings verbatim when the tier calls for it
+   (S with more than 3 findings, M, L). Keep only its KEPT list. At tier XS, check each finding yourself.
 3. Act on the ranked findings:
    - **NIT:** fix.
    - **IMPORTANT:** fix. One fix round = fix all open IMPORTANT/NIT findings, re-run `BUILD_CMD` +
