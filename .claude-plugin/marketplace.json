@@ -1,0 +1,16 @@
+{
+  "name": "gated-agent-workflow",
+  "owner": {
+    "name": "Robert Twyman Skelly"
+  },
+  "metadata": {
+    "description": "Claude Code plugin for a gated, mostly agentic coding workflow."
+  },
+  "plugins": [
+    {
+      "name": "gated-agent-workflow",
+      "source": "./plugin",
+      "description": "Skills, read-only reviewer subagents, a stop hook and session guardrails for a gated research-plan-build-review workflow."
+    }
+  ]
+}

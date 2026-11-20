@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# stop-gate.sh - Cursor "stop" hook for the agentic workflow kit.
+# stop-gate.sh - "stop" hook for the agentic workflow kit (Cursor and Claude Code).
 #
 # Runs after every agent turn. Does nothing unless a work item is in the build
 # phase. In build phase it:
@@ -8,8 +8,10 @@
 #   3. on failure, auto-submits a follow-up telling the agent to fix the code,
 #   4. after MAX_STOP_RUNS failing runs, tells the agent to stop and /wf-escalate.
 #
-# Input  (stdin): JSON from Cursor, e.g. {"status":"completed","loop_count":0,...}
-# Output (stdout): nothing, or {"followup_message":"..."}. Always exits 0.
+# Input  (stdin): JSON from Cursor, e.g. {"status":"completed","loop_count":0,"workspace_roots":[...]},
+#                 or from Claude Code, e.g. {"hook_event_name":"Stop","stop_hook_active":false,"cwd":"..."}.
+# Output (stdout): nothing, or a message for the agent: {"followup_message":"..."} for Cursor,
+#                 {"decision":"block","reason":"..."} for Claude Code. Always exits 0.
 # Dependencies: bash, git, sed, grep, awk, tr. No jq.
 
 set -u
@@ -21,11 +23,49 @@ STATUS="$(printf '%s' "$FLAT" | sed -n 's/.*"status"[[:space:]]*:[[:space:]]*"\(
 LOOP_COUNT="$(printf '%s' "$FLAT" | sed -n 's/.*"loop_count"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p')"
 case "$LOOP_COUNT" in ''|*[!0-9]*) LOOP_COUNT=0 ;; esac
 
-# Work from the project, not the hook's own folder: a plugin hook may start elsewhere. Prefer the
-# first workspace root Cursor passes in, then the git top level of the current directory.
-WS="$(printf '%s' "$FLAT" | sed -n 's/.*"workspace_roots"[[:space:]]*:[[:space:]]*\[[[:space:]]*"\([^"]*\)".*/\1/p')"
-[ -n "$WS" ] && [ -d "$WS" ] && cd "$WS" 2>/dev/null
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# Claude Code sends hook_event_name "Stop" and stop_hook_active (true when Claude is already
+# continuing because of this hook). It has no status or loop_count, so the run count is kept in a file.
+HOST=cursor
+case "$FLAT" in *'"stop_hook_active"'*|*'"hook_event_name"'*:*'"Stop"'*) HOST=claude ;; esac
+STOP_ACTIVE=false
+if [ "$HOST" = claude ]; then
+  STATUS=completed
+  printf '%s' "$FLAT" | grep -q '"stop_hook_active"[[:space:]]*:[[:space:]]*true' && STOP_ACTIVE=true
+fi
+
+# Find the project: the first candidate folder (or one of its parents) that has .workflow/active.env.
+# Candidates: Claude Code's CLAUDE_PROJECT_DIR, then every workspace root Cursor passes in, then the
+# hook's "cwd" (Claude's follows the agent's cd, so it may be a subfolder or a nested repo), then
+# the current directory. A candidate that does not exist is skipped.
+CANDIDATES=()
+[ "$HOST" = claude ] && [ -n "${CLAUDE_PROJECT_DIR:-}" ] && CANDIDATES+=("$CLAUDE_PROJECT_DIR")
+ROOTS="$(printf '%s' "$FLAT" | sed -n 's/.*"workspace_roots"[[:space:]]*:[[:space:]]*\[\([^]]*\)\].*/\1/p')"
+if [ -n "$ROOTS" ]; then
+  ROOTS="$(printf '%s' "$ROOTS" | sed 's/"[[:space:]]*,[[:space:]]*"/","/g')"
+  ROOTS_NL="${ROOTS//\",\"/\"$'\n'\"}"     # one root per line (bash, so it works with BSD sed too)
+  while IFS= read -r r; do
+    r="$(printf '%s' "$r" | sed -e 's/^[[:space:]]*"//' -e 's/"[[:space:]]*$//')"
+    [ -n "$r" ] && CANDIDATES+=("$r")
+  done <<EOF_ROOTS
+${ROOTS_NL}
+EOF_ROOTS
+fi
+CWD_IN="$(printf '%s' "$FLAT" | sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+[ -n "$CWD_IN" ] && CANDIDATES+=("$CWD_IN")
+CANDIDATES+=("$(pwd)")
+
+ROOT=""
+for c in "${CANDIDATES[@]}"; do
+  d="$(cd "$c" 2>/dev/null && pwd)" || continue
+  while [ -n "$d" ]; do
+    if [ -f "$d/.workflow/active.env" ]; then ROOT="$d"; break 2; fi
+    [ "$d" = "/" ] && break
+    # Stop at the top of the outermost git repo: never pick up a .workflow/ from an unrelated folder above it.
+    if [ -e "$d/.git" ] && ! git -C "$(dirname "$d")" rev-parse --is-inside-work-tree >/dev/null 2>&1; then break; fi
+    d="$(dirname "$d")"
+  done
+done
+[ -n "$ROOT" ] || exit 0      # no work item in progress anywhere we can see
 cd "$ROOT" || exit 0
 
 ACTIVE=".workflow/active.env"
@@ -60,8 +100,10 @@ case "${MAX_STOP_RUNS:-}" in ''|*[!0-9]*) MAX_STOP_RUNS=5 ;; esac
 
 ESC="$(printf '\033')"
 
-# Print {"followup_message": <$1 as a JSON string>} on stdout.
+# Print the message $1 as JSON on stdout, in the host's format. With $2=stop, Claude Code is told to
+# stop the agent and show the message to the user (Cursor has no equivalent, so it gets a follow-up).
 emit() {
+  local kind="${2:-continue}"
   local cleaned
   cleaned="$(printf '%s' "$1" \
     | sed "s/${ESC}\[[0-9;?]*[A-Za-z]//g" \
@@ -69,8 +111,11 @@ emit() {
   if command -v iconv >/dev/null 2>&1; then
     cleaned="$(printf '%s' "$cleaned" | iconv -c -f UTF-8 -t UTF-8 2>/dev/null || printf '%s' "$cleaned")"
   fi
-  printf '%s' "$cleaned" | awk '
-    BEGIN { ORS = ""; printf "{\"followup_message\":\"" }
+  printf '%s' "$cleaned" | awk -v host="$HOST" -v kind="$kind" '
+    BEGIN { ORS = ""
+      if (host == "claude" && kind == "stop") printf "{\"continue\":false,\"stopReason\":\""
+      else if (host == "claude") printf "{\"decision\":\"block\",\"reason\":\""
+      else printf "{\"followup_message\":\"" }
     {
       gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); gsub(/\t/, "\\t")
       if (NR > 1) printf "\\n"
@@ -78,6 +123,24 @@ emit() {
     }
     END { print "\"}\n" }'
 }
+
+# Claude Code: count this hook's consecutive runs in a file (reset when Claude stops on its own).
+COUNT_FILE="$WORK_DIR/.stop-runs"
+if [ "$HOST" = claude ]; then
+  if [ "$STOP_ACTIVE" = true ]; then
+    LOOP_COUNT="$(cat "$COUNT_FILE" 2>/dev/null || echo 0)"
+    case "$LOOP_COUNT" in ''|*[!0-9]*) LOOP_COUNT=0 ;; esac
+  else
+    LOOP_COUNT=0
+  fi
+  if ! { echo $((LOOP_COUNT + 1)) > "$COUNT_FILE"; } 2>/dev/null; then
+    # Without a run count there is no cap, so never keep the agent going: stop and tell the user.
+    emit "stop-gate: cannot write ${COUNT_FILE}, so the run cap cannot be enforced. Stopping. Check that ${WORK_DIR} is writable, then continue." stop
+    exit 0
+  fi
+fi
+PAST_CAP=false
+[ "$LOOP_COUNT" -ge "$MAX_STOP_RUNS" ] && PAST_CAP=true
 
 RUN_NO=$((LOOP_COUNT + 1))
 SLICE_LABEL="${SLICE:-current slice}"
@@ -99,6 +162,13 @@ if [ -n "$LOCK_SHA" ] && [ -f "$LOCK_LIST" ]; then
     CHANGED="$(git diff --name-only "$LOCK_SHA" -- "${LOCKED[@]}" 2>&1)"
     if [ -n "$CHANGED" ]; then
       FILES="$(printf '%s ' "${LOCKED[@]}")"
+      if [ "$PAST_CAP" = true ]; then
+        emit "stop-gate: locked tests are still modified for ${SLICE_LABEL} after the run cap:
+${CHANGED}
+Restore them with: git checkout ${LOCK_SHA} -- ${FILES% }
+Stop now: do not change any more code. Tell the user the locked tests were edited, show the diff, and let them decide (restore, or /wf-escalate if a locked test is wrong)." stop
+        exit 0
+      fi
       emit "Locked tests were modified for ${SLICE_LABEL}:
 ${CHANGED}
 
@@ -109,6 +179,10 @@ Then fix the production code, not the tests. If a locked test itself seems wrong
     fi
   fi
 fi
+
+# Past the cap the escalation message has already been sent: let the agent stop (and start the
+# count again for the next attempt).
+if [ "$PAST_CAP" = true ]; then rm -f "$COUNT_FILE" 2>/dev/null; exit 0; fi
 
 # 2. Build, then test. Full output goes to last-run.log.
 LOG="$WORK_DIR/last-run.log"
@@ -137,7 +211,7 @@ if [ "$RC" -eq 0 ] && [ -n "$TEST_CMD" ]; then
 fi
 echo "# exit ${RC}" >> "$LOG"
 
-[ "$RC" -eq 0 ] && exit 0
+if [ "$RC" -eq 0 ]; then rm -f "$COUNT_FILE" 2>/dev/null; exit 0; fi
 
 TAIL="$(tail -n 40 "$LOG")"
 

@@ -246,9 +246,9 @@ files are listed in <code>locked-tests.txt</code>. Nobody edits or
 loosens them.</p></li>
 <li><p><strong>Stop hook</strong>: <code>stop-gate.sh</code> in the
 plugin's <code>hooks/</code> folder (or <code>.cursor/hooks/</code>
-after a copy install), run by Cursor after each agent turn. It runs
-build + tests and sends the agent back to work until they pass, up to 5
-runs.</p></li>
+after a copy install), run by Cursor or Claude Code after each agent
+turn. It runs build + tests and sends the agent back to work until they
+pass, up to 5 runs.</p></li>
 <li><p><strong>Show-me</strong>: the end of each slice. The agent shows
 a summary, how to run it, the diff stat and test evidence; you approve
 before it commits.</p></li>
@@ -593,9 +593,9 @@ harder.</p>
 </tbody>
 </table>
 <p>The numbers live in <code>.workflow/config.env</code> as
-MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2. The hooks
-config sets the hook's loop_limit to 6 as a backstop above
-MAX_STOP_RUNS.</p>
+MAX_STOP_RUNS=5, MAX_REVIEW_ROUNDS=3 and MAX_PR_FIX_ROUNDS=2. The hook
+enforces MAX_STOP_RUNS itself; Cursor's loop_limit (20) is only a
+backstop, so keep MAX_STOP_RUNS below 20.</p>
 <p><strong>Never keep going past a limit. Never edit or loosen a locked
 test.</strong> A limit hit is information: the plan, the design or the
 spec is wrong somewhere, and more attempts will hide that.</p>
@@ -869,10 +869,10 @@ design, verification and problem resolution). Decide together which
 what. Treat agent output as a draft that a qualified engineer reviews,
 as you would any other tool output.</p>
 <h2 id="12-setup">12. Setup</h2>
-<p>The kit is a Cursor plugin. Install it once, then let
-<code>/wf-start</code> set up each repo.</p>
+<p>The kit is one plugin for Cursor and Claude Code. Install it once,
+then let <code>/wf-start</code> set up each repo.</p>
 <ol type="1">
-<li><p><strong>Install the plugin</strong>, one of three ways:</p>
+<li><p><strong>Install the plugin</strong>, one of four ways:</p>
 <ul>
 <li><strong>Team marketplace</strong> (best for a team): in the Cursor
 dashboard, <strong>Plugins &amp; MCPs → Add Marketplace → Import from
@@ -880,10 +880,17 @@ Repo</strong>, paste
 <code>https://github.com/robbietuk/gated-agent-workflow</code>, then in
 Cursor open <strong>Customize</strong> and install
 <strong>gated-agent-workflow</strong>.</li>
-<li><strong>Local plugin</strong> (just you): link the repo's
-<code>plugin/</code> folder to
+<li><strong>Local plugin</strong> (just you): copy (not symlink) the
+repo's <code>plugin/</code> folder to
 <code>~/.cursor/plugins/local/gated-agent-workflow</code> and reload the
 window. Your organisation may need to allow local plugins.</li>
+<li><strong>Claude Code</strong>:
+<code>/plugin marketplace add robbietuk/gated-agent-workflow</code>,
+then
+<code>/plugin install gated-agent-workflow@gated-agent-workflow</code>.
+Skills are typed as <code>/gated-agent-workflow:wf-start</code> and so
+on; a session-start hook adds the guardrails and maps the names, and
+"new chat" means <code>/clear</code>.</li>
 <li><strong>Copy into a repo</strong> (no plugins):
 <code>bash tools/install-into-repo.sh /path/to/repo</code> puts the
 skills, subagents, rule and hook in the repo's <code>.cursor/</code> and

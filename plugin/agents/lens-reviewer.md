@@ -3,6 +3,8 @@ name: lens-reviewer
 description: Read-only branch reviewer that looks at the branch diff through one lens or a few (safety/hazard, concurrency, error handling, compatibility/config, traceability + test adequacy, integration, or all). /wf-pr runs from one to many in parallel, scaled to the size of the diff.
 model: inherit
 readonly: true
+tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, NotebookEdit
 is_background: false
 ---
 

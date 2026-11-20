@@ -2,8 +2,10 @@
 # test-stop-gate.sh - self-test for stop-gate.sh (the plugin's hooks/stop-gate.sh)
 #
 # Builds a throwaway git repo in a temp dir, drops the hook in, and feeds it the
-# same stdin JSON Cursor sends. Checks each scenario and that every non-empty
-# output is valid JSON with a "followup_message" string (python3 json.loads).
+# stdin JSON that Cursor and Claude Code send. Checks each scenario and that every
+# non-empty output is valid JSON in that host's format: {"followup_message"} for
+# Cursor, {"decision":"block","reason"} or {"continue":false,"stopReason"} for
+# Claude Code (python3 json.loads).
 #
 # Usage: bash plugin/hooks/test-stop-gate.sh     (from anywhere; needs bash, git, python3)
 
@@ -13,9 +15,10 @@ HOOK_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/stop-gate.sh"
 [ -f "$HOOK_SRC" ] || { echo "cannot find $HOOK_SRC"; exit 2; }
 command -v python3 >/dev/null 2>&1 || { echo "python3 is required for JSON validation"; exit 2; }
 
-TMP="$(mktemp -d 2>/dev/null || mktemp -d -t stopgate)"
-trap 'rm -rf "$TMP"' EXIT
-cd "$TMP" || exit 2
+TMP_BASE="$(mktemp -d 2>/dev/null || mktemp -d -t stopgate)"
+trap 'rm -rf "$TMP_BASE"' EXIT
+TMP="$TMP_BASE/repo dir"          # a space in the path on purpose
+mkdir -p "$TMP" && cd "$TMP" || exit 2
 
 PASS=0
 FAIL=0
@@ -66,7 +69,7 @@ EOF
 }
 
 run_hook() { # $1 = status, $2 = loop_count ; pretty-printed JSON on purpose
-  printf '{\n  "conversation_id": "abc",\n  "generation_id": "g1",\n  "status": "%s",\n  "loop_count": %s,\n  "workspace_roots": ["%s"]\n}\n' \
+  printf '{\n  "conversation_id": "abc",\n  "generation_id": "g1",\n  "hook_event_name": "stop",\n  "status": "%s",\n  "loop_count": %s,\n  "workspace_roots": ["%s"]\n}\n' \
     "$1" "$2" "$TMP" | bash .cursor/hooks/stop-gate.sh
 }
 
@@ -129,7 +132,26 @@ expect_followup "failing tests, loop_count=4 -> cap reached, escalate" "$OUT" \
 sed 's/MAX_STOP_RUNS=5/MAX_STOP_RUNS=2/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
 OUT="$(run_hook completed 1)"
 expect_followup "MAX_STOP_RUNS=2 honoured (cap at loop_count=1)" "$OUT" "stop-hook cap"
-sed 's/MAX_STOP_RUNS=2/MAX_STOP_RUNS=5/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
+OUT="$(run_hook completed 0)"
+expect_followup "MAX_STOP_RUNS=2, loop_count=0 -> still retry" "$OUT" "run 1 of 2"
+OUT="$(run_hook completed 2)"
+expect_silent "MAX_STOP_RUNS=2, loop_count=2 (past the cap) -> silent" "$OUT"
+
+set_max() { sed "s/^MAX_STOP_RUNS=.*/MAX_STOP_RUNS=$1/" .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env; }
+set_max 1
+OUT="$(run_hook completed 0)"
+expect_followup "MAX_STOP_RUNS=1 -> first failure escalates" "$OUT" "stop-hook cap"
+set_max 0
+OUT="$(run_hook completed 0)"
+expect_followup "MAX_STOP_RUNS=0 is treated as 1" "$OUT" "1 of 1 runs" "stop-hook cap"
+set_max abc
+OUT="$(run_hook completed 0)"
+expect_followup "MAX_STOP_RUNS=abc falls back to 5" "$OUT" "run 1 of 5"
+set_max 5
+OUT="$(run_hook completed 5)"
+expect_silent "loop_count=5 (past the cap) -> silent" "$OUT"
+OUT="$(run_hook completed 7)"
+expect_silent "loop_count=7 (well past the cap) -> silent" "$OUT"
 
 sed 's/BUILD_CMD="true"/BUILD_CMD="echo compile error >\&2; exit 3"/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
 echo "pass" > src/state
@@ -173,6 +195,104 @@ mv .workflow/config.env .cursor/workflow.env
 OUT="$(run_hook completed 0)"
 expect_followup "falls back to .cursor/workflow.env" "$OUT" "failing"
 mv .cursor/workflow.env .workflow/config.env
+
+# ---- Claude Code input/output ------------------------------------------------
+run_claude() { # $1 = stop_hook_active (true|false); started outside the repo, finds it via cwd
+  ( cd / && printf '{\n  "session_id": "s1",\n  "hook_event_name": "Stop",\n  "stop_hook_active": %s,\n  "cwd": "%s"\n}\n' \
+    "$1" "$TMP" | bash "$TMP/.cursor/hooks/stop-gate.sh" )
+}
+claude_reason() { # stdin -> prints reason; fails unless {"decision":"block","reason":"..."}
+  python3 -c 'import json,sys; d=json.loads(sys.stdin.read()); assert d["decision"]=="block"; m=d["reason"]; assert isinstance(m,str) and m; sys.stdout.write(m)'
+}
+expect_block() { # $1 name, $2 output, $3.. required substrings
+  local name="$1" out="$2" msg s; shift 2
+  if [ -z "$out" ]; then bad "$name" "expected block JSON, got nothing"; return; fi
+  if ! msg="$(printf '%s' "$out" | claude_reason 2>&1)"; then bad "$name" "invalid block JSON: $msg"; return; fi
+  for s in "$@"; do
+    case "$msg" in *"$s"*) ;; *) bad "$name" "reason missing: $s"; return ;; esac
+  done
+  ok "$name (valid JSON)"
+}
+
+write_active build "$LOCK"
+sed 's/^TEST_CMD=.*/TEST_CMD="exit 1"/; s/^MAX_STOP_RUNS=.*/MAX_STOP_RUNS=3/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
+OUT="$(run_claude false)"
+expect_block "claude: failing tests -> block, run 1" "$OUT" "run 1 of 3" "Fix the code, not the tests"
+OUT="$(run_claude true)"
+expect_block "claude: still failing -> run 2" "$OUT" "run 2 of 3"
+OUT="$(run_claude true)"
+expect_block "claude: cap reached -> escalate" "$OUT" "cap reached" "/wf-escalate"
+OUT="$(run_claude true)"
+expect_silent "claude: past the cap -> lets Claude stop" "$OUT"
+OUT="$(run_claude false)"
+expect_block "claude: new turn resets the count" "$OUT" "run 1 of 3"
+
+printf 'x\n' >> tests/test_dose.py
+OUT="$(run_claude false)"
+expect_block "claude: locked test edited -> restore message" "$OUT" "git checkout $LOCK -- tests/test_dose.py"
+git checkout -q "$LOCK" -- tests/test_dose.py
+
+sed 's/^TEST_CMD=.*/TEST_CMD="true"/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
+OUT="$(run_claude false)"
+expect_silent "claude: passing -> silent" "$OUT"
+if [ -e .workflow/2026-01-01-demo/.stop-runs ]; then bad "claude: passing clears the run count" "file still there"; else ok "claude: passing clears the run count"; fi
+
+write_active plan "$LOCK"
+OUT="$(run_claude false)"
+expect_silent "claude: PHASE=plan -> silent" "$OUT"
+
+claude_stop() { # stdin -> prints stopReason; fails unless {"continue":false,"stopReason":"..."}
+  python3 -c 'import json,sys; d=json.loads(sys.stdin.read()); assert d["continue"] is False; m=d["stopReason"]; assert isinstance(m,str) and m; sys.stdout.write(m)'
+}
+expect_stop() { # $1 name, $2 output, $3.. required substrings
+  local name="$1" out="$2" msg s; shift 2
+  if [ -z "$out" ]; then bad "$name" "expected stop JSON, got nothing"; return; fi
+  if ! msg="$(printf '%s' "$out" | claude_stop 2>&1)"; then bad "$name" "invalid stop JSON: $msg"; return; fi
+  for s in "$@"; do
+    case "$msg" in *"$s"*) ;; *) bad "$name" "stopReason missing: $s"; return ;; esac
+  done
+  ok "$name (valid JSON)"
+}
+run_claude_at() { # $1 = stop_hook_active, $2 = cwd to report, $3 = CLAUDE_PROJECT_DIR (may be empty)
+  ( cd / && printf '{"hook_event_name":"Stop","stop_hook_active":%s,"cwd":"%s"}' "$1" "$2" \
+    | CLAUDE_PROJECT_DIR="$3" bash "$TMP/.cursor/hooks/stop-gate.sh" )
+}
+
+# ---- locked tests past the cap, project discovery, counter failure ----------------
+write_active build "$LOCK"
+sed 's/^TEST_CMD=.*/TEST_CMD="exit 1"/; s/^MAX_STOP_RUNS=.*/MAX_STOP_RUNS=2/' .workflow/config.env > .workflow/config.env.tmp && mv .workflow/config.env.tmp .workflow/config.env
+rm -f .workflow/2026-01-01-demo/.stop-runs
+printf 'x\n' >> tests/test_dose.py
+OUT="$(run_hook completed 2)"
+expect_followup "cursor: locked test edited past the cap -> still caught" "$OUT" "after the run cap" "git checkout $LOCK -- tests/test_dose.py"
+OUT="$(run_claude false)"
+expect_block "claude: locked test edited, run 1 -> restore" "$OUT" "Restore them now"
+OUT="$(run_claude true)"
+expect_block "claude: locked test still edited, run 2 -> restore" "$OUT" "Restore them now"
+OUT="$(run_claude true)"
+expect_stop "claude: locked test still edited past the cap -> stop and tell the user" "$OUT" "after the run cap" "/wf-escalate"
+git checkout -q "$LOCK" -- tests/test_dose.py
+
+mkdir -p "nested repo" && (cd "nested repo" && git init -q .)
+OUT="$(run_claude_at false "$TMP/nested repo" "")"
+expect_block "claude: cwd in a nested git repo -> finds the project above it" "$OUT" "run 1 of 2"
+OUT="$(run_claude_at false "/" "$TMP")"
+expect_block "claude: CLAUDE_PROJECT_DIR used when cwd is elsewhere" "$OUT" "run 1 of 2"
+OUT="$(run_claude_at false 'C:\\Users\\nobody' "$TMP")"
+expect_block "claude: unusable cwd falls through to CLAUDE_PROJECT_DIR" "$OUT" "run 1 of 2"
+OUT="$( (cd / && printf '{"status":"completed","loop_count":0,"workspace_roots":["/nonexistent","%s/nested repo","%s"]}' "$TMP" "$TMP" | bash "$TMP/.cursor/hooks/stop-gate.sh") )"
+expect_followup "cursor: multi-root workspace, project not first -> found" "$OUT" "run 1 of 2"
+
+mkdir -p "$TMP_BASE/.workflow" "$TMP_BASE/other repo" && (cd "$TMP_BASE/other repo" && git init -q .)
+printf 'WORK_DIR=.workflow\nPHASE=build\n' > "$TMP_BASE/.workflow/active.env"
+OUT="$(run_claude_at false "$TMP_BASE/other repo" "")"
+expect_silent "claude: never uses a .workflow/ above the repo's own git root" "$OUT"
+rm -rf "$TMP_BASE/.workflow"
+
+rm -f .workflow/2026-01-01-demo/.stop-runs && mkdir .workflow/2026-01-01-demo/.stop-runs
+OUT="$(run_claude false)"
+expect_stop "claude: run count cannot be written -> stop, never loop" "$OUT" "cannot write"
+rmdir .workflow/2026-01-01-demo/.stop-runs
 
 echo
 echo "stop-gate tests: $PASS passed, $FAIL failed"

@@ -15,5 +15,6 @@
     "spec-driven",
     "medical-device",
     "traceability"
-  ]
+  ],
+  "hooks": "./hooks/cursor-hooks.json"
 }

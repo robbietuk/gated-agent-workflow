@@ -12,13 +12,29 @@ fixes. Built for regulated (medical-device) software, where traceability and hum
 - **Guide:** [docs/guide/index.html](docs/guide/index.html) (Markdown source: [docs/guide.md](docs/guide.md)) - tracks, walkthroughs, gates, limits, setup, FAQ.
 - **Slides:** [docs/slides/index.html](docs/slides/index.html) - 17 slides with speaker notes; arrow keys to move.
 - **Cheat sheet:** [docs/cheatsheet.html](docs/cheatsheet.html) - one printable page with every command.
-- **Kit:** a Cursor plugin in [`plugin/`](plugin): install it from this repo as a team marketplace, as a local plugin, or copy it into a repo with [`tools/install-into-repo.sh`](tools/install-into-repo.sh). See [Install](#install).
+- **Kit:** one plugin in [`plugin/`](plugin) for both Cursor and Claude Code: install it from this repo as a marketplace, as a local plugin, or copy it into a repo with [`tools/install-into-repo.sh`](tools/install-into-repo.sh). See [Install](#install).
 
 > Status: the formats follow Cursor's documentation (Cursor 2.4+), and the stop hook has a self-test
 > (`bash plugin/hooks/test-stop-gate.sh`), but the kit has not yet been exercised end to end inside Cursor.
 > Try it on a small change first and open an issue with what you find.
 
 ---
+
+### Releasing
+Installed copies only update when the version changes: Claude Code keeps its cached copy until the
+version in `plugin.json` changes, and `/wf-start` refreshes a repo's `.workflow/kit/` when `kit/VERSION`
+changes. `make release VERSION=1.2.0` sets the version in all four places and runs `make ci`; then commit,
+open a PR, merge and tag `v1.2.0`.
+
+**Getting updates:** Cursor team marketplaces re-index on push when Auto Refresh is on, and Cursor picks
+the update up on the next window focus. Claude Code users turn on auto-update for this marketplace in
+`/plugin` → Marketplaces, or run `/plugin marketplace update gated-agent-workflow`. Local Cursor plugins
+need `plugin/` copied again.
+
+### Checks
+`make ci` runs the stop-hook self-test, the session-start and installer checks (including the upgrade from
+the older `.cursor/` layout), the manifest and version checks and, if Claude Code is installed,
+`claude plugin validate`. GitHub Actions runs it on every pull request.
 
 ### Editing the docs
 The docs site is plain HTML in [`docs/`](docs). The guide's source is [`docs/guide.md`](docs/guide.md); the slides'
@@ -64,20 +80,23 @@ traceability matters.
 
 ## What is in the kit
 
-The kit is a Cursor plugin in [`plugin/`](plugin):
+The kit is one plugin in [`plugin/`](plugin) that works in both Cursor and Claude Code:
 
 | Path in `plugin/` | What it is |
 |---|---|
 | `.cursor-plugin/plugin.json` | Plugin manifest (name, version, author) |
 | `skills/wf-start` ... `wf-pr` | Eight skills, invoked as `/wf-start`, `/wf-research`, `/wf-brainstorm`, `/wf-plan`, `/wf-build`, `/wf-debug`, `/wf-pr`, `/wf-escalate` |
-| `agents/` | Read-only subagents: `researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier` |
-| `hooks/hooks.json`, `hooks/stop-gate.sh` | Stop hook: in build phase, guards locked tests and runs build + tests after every agent turn |
+| `agents/` | Read-only subagents (in Claude Code they cannot write or edit files, but can run Bash, so read-only there rests on their instructions): `researcher`, `slice-reviewer`, `lens-reviewer`, `finding-verifier` |
+| `.claude-plugin/plugin.json` | The same plugin's manifest for Claude Code |
+| `hooks/stop-gate.sh` | Stop hook (Cursor and Claude Code): in build phase, guards locked tests and runs build + tests after every agent turn |
+| `hooks/cursor-hooks.json`, `hooks/hooks.json` | Hook registration for Cursor and for Claude Code (`hooks.json` also adds the guardrails at session start) |
+| `hooks/session-start.sh` | Claude Code only: adds the rule file's guardrails to each session |
 | `hooks/test-stop-gate.sh` | Self-test for the hook (temp git repo, all scenarios, JSON validation) |
 | `rules/agentic-workflow.mdc` | Always-on guardrails (repo setup, locked tests, limits, hand-offs, escalate, no merge/push) |
 | `skills/wf-start/kit/` | Per-repo files that `/wf-start` sets up in `.workflow/` on first use: `config.env`, `scaling.md`, `ci-procedure.md`, `templates/` |
 
-The repo root also has `.cursor-plugin/marketplace.json`, which lets Cursor import this repository as a
-marketplace containing the plugin.
+The repo root also has `.cursor-plugin/marketplace.json` and `.claude-plugin/marketplace.json`, which let Cursor
+and Claude Code add this repository as a marketplace containing the plugin.
 
 In each repo that uses it, the workflow keeps:
 
@@ -101,7 +120,7 @@ In each repo that uses it, the workflow keeps:
 
 ## Install
 
-Pick one of three ways. All give you the same `/wf-*` commands.
+Pick one of four ways (A-C for Cursor, D for Claude Code). All give you the same skills.
 
 ### A. Team marketplace (recommended for a team)
 1. In the Cursor dashboard, go to **Plugins & MCPs**, click **Add Marketplace**, choose **Import from Repo** and
@@ -109,8 +128,10 @@ Pick one of three ways. All give you the same `/wf-*` commands.
 2. In Cursor, open **Customize**, find **gated-agent-workflow** and click **Install** (project or user scope).
 
 ### B. Local plugin (just you, no admin needed unless your organisation blocks local plugins)
-1. Clone this repo, then copy or link its `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow`:
-   `ln -s "$PWD/plugin" ~/.cursor/plugins/local/gated-agent-workflow`
+1. Clone this repo, then copy its `plugin/` folder to `~/.cursor/plugins/local/gated-agent-workflow`:
+   `mkdir -p ~/.cursor/plugins/local && cp -R plugin ~/.cursor/plugins/local/gated-agent-workflow`
+   (Copy, do not symlink: Cursor does not load a symlink that points outside that folder. After a
+   `git pull`, copy it again.) To try an unmerged branch, check it out before copying.
 2. Restart Cursor or run **Developer: Reload Window**.
 
 ### C. Copy into a repo (no plugins at all)
@@ -118,8 +139,30 @@ Pick one of three ways. All give you the same `/wf-*` commands.
 `.cursor/` and sets up `.workflow/`. Run it again to update; it never overwrites `.workflow/config.env` or an
 existing `.cursor/hooks.json`.
 
+### D. Claude Code
+The same `plugin/` folder is also a Claude Code plugin (it passes `claude plugin validate`). In Claude Code:
+```
+/plugin marketplace add robbietuk/gated-agent-workflow
+/plugin install gated-agent-workflow@gated-agent-workflow
+```
+Claude Code namespaces plugin skills, so `/wf-start` is typed as `/gated-agent-workflow:wf-start` (and so on
+for every skill). Claude Code has no always-on rules, so a `SessionStart` hook adds the guardrails to every
+session, along with how the kit's names map (`/wf-x`, the subagents, "new chat" = `/clear`). The stop hook
+is the same script as in Cursor. You can use the kit in both tools, but install it
+only once per tool: in Cursor, the plugin or a copy install, not both (two copies run two stop hooks).
+The guardrails are added to every Claude Code session, including repos that do not use the workflow
+(about 950 tokens).
+
+### Upgrading from the older `.cursor/` copy-in layout
+Before installing the plugin, remove the old copy so its skills and stop hook do not run alongside it:
+`.cursor/skills/wf-*`, this kit's `.cursor/agents/*.md`, `.cursor/rules/agentic-workflow.mdc`,
+`.cursor/hooks/stop-gate.sh`, `.cursor/hooks/test-stop-gate.sh` and the stop entry in `.cursor/hooks.json`. Then run `/wf-start`: it moves your
+settings from `.cursor/workflow.env` to `.workflow/config.env`. (`tools/install-into-repo.sh` does the same
+move for copy installs.) Afterwards `.cursor/workflow.env`, `.cursor/workflow-scaling.md`,
+`.cursor/ci-checks.md` and `.workflow/templates/` can be deleted.
+
 ### Then, in each repo
-1. Type `/wf-start`. On first use it sets the repo up: it creates `.workflow/config.env` and `.workflow/kit/`
+1. Type `/wf-start` (Claude Code: `/gated-agent-workflow:wf-start`). On first use it sets the repo up: it creates `.workflow/config.env` and `.workflow/kit/`
    and asks for your commands: `TEST_CMD` (required), `BUILD_CMD` (optional) and `CI_CMD` (for example
    `make ci`, if you have one). Examples: `BUILD_CMD="cmake --build build -j"` /
    `TEST_CMD="ctest --test-dir build --output-on-failure"`, or `TEST_CMD="dotnet test"`, or `TEST_CMD="pytest -q"`.
@@ -129,6 +172,7 @@ existing `.cursor/hooks.json`.
    ```
    .workflow/active.env
    .workflow/*/last-run.log
+   .workflow/*/.stop-runs
    ```
 3. Check the hook on your machine: `bash plugin/hooks/test-stop-gate.sh` from this repo (or
    `bash .cursor/hooks/test-stop-gate.sh` after a copy install). All lines should say PASS.
@@ -136,9 +180,10 @@ existing `.cursor/hooks.json`.
 **After a plugin update,** `/wf-start` notices the new version and offers to refresh `.workflow/kit/`. It
 never overwrites `.workflow/config.env`; it lists any new settings and offers to add them.
 
-**Not yet verified in Cursor:** how a plugin's stop hook resolves its script path and working directory.
-The hook moves itself to the workspace root Cursor passes in, which the self-test covers, but if the hook
-does not fire from a plugin install, use install option C for now (tracked in issue #1 and #6).
+**Not yet verified live:** neither install has run in a real Cursor or Claude Code session yet. Cursor runs a
+plugin's stop hook from the workspace root, so the hook is started as `bash "${CURSOR_PLUGIN_ROOT}/hooks/stop-gate.sh"`.
+If it does not fire from a plugin install (`last-run.log` in the work folder never updates during
+`/wf-build`), use install option C for now (tracked in issues #1 and #6).
 
 **Windows:** the hook is a bash script. Cursor must be able to run it with bash: install Git for Windows
 (Git Bash) or use WSL, and make sure `bash` is on the PATH Cursor sees. The skills and subagents work
@@ -233,7 +278,7 @@ Never: keep going past a limit, or edit/loosen a locked test. The hook detects l
 - **Stop hook.** After each agent turn in build phase: locked-test check, then `BUILD_CMD` and `TEST_CMD`.
   Pass: silent. Fail: auto-submits "Build/tests failing (run N of 5). Fix the code, not the tests." with the
   last 40 lines of output. On the 5th failing run: "stop changing code; run /wf-escalate". Cursor's own
-  `loop_limit: 6` is a backstop above that. `loop_count` counts the hook's own follow-ups in an agent run;
+  `loop_limit: 20` is only a backstop above that. `loop_count` counts the hook's own follow-ups in an agent run;
   if you step in with a message, counting may start over, so treat the cap as "how long the agent may churn
   on its own" and keep an eye on the slice counters in `outline.md`.
 - **Fresh reviewers.** Subagents start with a clean context and are read-only; the skills pass them
@@ -241,10 +286,11 @@ Never: keep going past a limit, or edit/loosen a locked test. The hook detects l
 
 ## Tuning
 
-- **Limits:** change the numbers in `.workflow/config.env`. Keep `loop_limit` in the hooks config (`plugin/hooks/hooks.json`, or `.cursor/hooks.json` after a copy install) at
-  least `MAX_STOP_RUNS + 1` so the escalation message can be delivered.
+- **Limits:** change the numbers in `.workflow/config.env`. The hook enforces `MAX_STOP_RUNS` itself; Cursor's
+  `loop_limit` (20 in the plugin) is only a backstop, so keep `MAX_STOP_RUNS` below 20.
 - **Slow suites:** point `TEST_CMD` at a fast subset (e.g. the module's tests) and let `/wf-pr` run the full
-  suite; raise `timeout` in `hooks.json` (seconds) if needed.
+  suite. The hook has 600 seconds for build plus tests; if it is killed, both tools treat that as a pass, so keep
+  the commands well under that or raise `timeout` in the hooks config.
 - **Models:** subagents use `model: inherit`. Set a specific model in the agent frontmatter if you want
   cheaper research or a stronger reviewer.
 - **CI checks:** set `CI_CMD` in `.workflow/config.env` if the repo has one local entry point (for example

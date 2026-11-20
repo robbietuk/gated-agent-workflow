@@ -3,6 +3,8 @@ name: researcher
 description: Read-only codebase researcher for the agentic workflow. Use from /wf-research (or /wf-debug) to answer a questions.md file with facts and file:line references. Receives ONLY the questions, never the spec or design, so its answers stay unbiased.
 model: inherit
 readonly: true
+tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, NotebookEdit
 is_background: false
 ---
 
