@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gated agent workflow · Cheat sheet</title>
+<style>
+  :root {
+    --ink: #172033; --light: #F6F4EF; --light2: #ECE8DF; --card: #FDFCF9; --body: #3F4A5C; --muted: #5E6878;
+    --you: #5B4BD1; --you-dark: #3A2E99; --you-tint: #ECEAFB;
+    --agent: #0E7C66; --agent-dark: #0A5546; --agent-tint: #E1F2EC; --line: #D9D4C7;
+  }
+  @page { size: letter; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { width: 8.5in; height: 11in; background: var(--light); color: var(--body);
+         font-family: 'Inter', 'DejaVu Sans', sans-serif; font-size: 7.8pt; line-height: 1.28;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow: hidden; }
+  .head { background: var(--ink); color: var(--light); padding: 14px 28px 11px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .eyebrow { font-size: 7.5pt; letter-spacing: 1.5px; color: #B8AFF5; font-weight: 600; text-transform: uppercase; margin: 0 0 3px; }
+  h1 { font-family: 'Inter Display', 'Inter', sans-serif; font-size: 19pt; font-weight: 700; margin: 0; line-height: 1.05; }
+  .tag { font-size: 8.6pt; color: #C9D2E0; margin: 4px 0 0; }
+  .legend { display: flex; gap: 6px; }
+  .chip { font-size: 7.4pt; font-weight: 600; padding: 2px 8px; border-radius: 10px; border: 1.2px solid; white-space: nowrap; }
+  .c-you { background: var(--you-tint); border-color: var(--you); color: var(--you-dark); }
+  .c-agent { background: var(--agent-tint); border-color: var(--agent); color: var(--agent-dark); }
+  .c-gate { background: var(--light2); border-color: var(--you); color: var(--ink); }
+  .wrap { padding: 9px 28px 0; }
+  h2 { font-family: 'Inter Display', 'Inter', sans-serif; font-size: 10.5pt; font-weight: 700; color: var(--ink); margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { background: var(--you); color: #fff; border-radius: 50%; width: 16px; height: 16px; font-size: 8pt; display: inline-flex; align-items: center; justify-content: center; }
+  code, .cmd { font-family: 'DejaVu Sans Mono', monospace; font-size: 0.88em; letter-spacing: -0.2px; }
+  /* flow strip */
+  .flow { display: flex; align-items: stretch; gap: 4px; }
+  .stage { flex: 1; background: var(--card); border: 1.2px solid var(--line); border-radius: 8px; padding: 6px 7px; }
+  .stage .t { font-weight: 700; color: var(--ink); font-size: 8.4pt; }
+  .stage .cmd { color: var(--you); font-size: 6.9pt; }
+  .stage .s { font-size: 7.4pt; color: var(--muted); margin-top: 2px; }
+  .arrow { align-self: center; color: #A8A293; font-size: 11pt; }
+  .esc { margin-top: 5px; border: 1.6px dashed var(--you); background: var(--you-tint); color: var(--you-dark); border-radius: 8px; padding: 4px 9px; font-size: 7.8pt; }
+  /* commands */
+  .cmds { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .card { background: var(--card); border: 1.2px solid var(--line); border-left: 4px solid var(--agent); border-radius: 8px; padding: 5px 8px; }
+  .card.you { border-left-color: var(--you); }
+  .card.gate { border-left-color: #8E83E3; }
+  .ch { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+  .ch .cmd { font-size: 10pt; font-weight: 700; color: var(--ink); }
+  .what { color: var(--ink); font-weight: 600; margin: 0 0 3px; }
+  .rows { display: grid; grid-template-columns: 40px 1fr; column-gap: 5px; row-gap: 1px; margin: 0; }
+  .rows dt { font-size: 6.6pt; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; padding-top: 1px; }
+  .rows dd { margin: 0; }
+  .ex { margin-top: 3px; background: var(--light2); border-radius: 5px; padding: 2px 6px; font-size: 7.4pt; color: var(--ink); }
+  .ex code { font-size: 7.4pt; }
+  /* bottom */
+  .bottom { align-items: start; display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 6px; margin-top: 7px; }
+  .panel { background: var(--card); border: 1.2px solid var(--line); border-radius: 8px; padding: 7px 9px; }
+  .panel h3 { font-family: 'Inter Display', 'Inter', sans-serif; font-size: 9pt; margin: 0 0 4px; color: var(--ink); }
+  .seq { margin: 0 0 4px; }
+  .seq b { color: var(--ink); }
+  .seq code { color: var(--you); font-size: 7.4pt; }
+  table { border-collapse: collapse; width: 100%; font-size: 7.8pt; }
+  td { padding: 1.5px 0; border-bottom: 1px solid var(--light2); }
+  td:last-child { text-align: right; font-weight: 600; color: var(--ink); }
+  ul { margin: 0; padding-left: 12px; }
+  li { margin-bottom: 1.5px; }
+  .never li::marker { color: #B4532A; }
+  .files code { font-size: 7.2pt; color: var(--ink); }
+  .foot { position: absolute; left: 28px; right: 28px; bottom: 12px; display: flex; justify-content: space-between; font-size: 7.2pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 5px; }
+  .foot code { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="head">
+  <div>
+    <p class="eyebrow">Cursor · Cheat sheet</p>
+    <h1>Gated agent workflow</h1>
+    <p class="tag">Manual where you think. Agentic where it builds. You own the what; the agent owns the how; tests decide done.</p>
+  </div>
+  <div class="legend">
+    <span class="chip c-you">You</span><span class="chip c-agent">Agent</span><span class="chip c-gate">Agent drafts, you approve</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <h2><span class="n">1</span>The flow</h2>
+  <div class="flow">
+    <div class="stage"><div class="t">Start</div><div class="cmd">/wf-start, /wf-research</div><div class="s">Spec, questions, neutral research</div></div>
+    <div class="arrow">›</div>
+    <div class="stage"><div class="t">Brainstorm loop</div><div class="cmd">/wf-brainstorm</div><div class="s">Options together → design doc · <b>you approve</b></div></div>
+    <div class="arrow">›</div>
+    <div class="stage"><div class="t">Planning loop</div><div class="cmd">/wf-plan</div><div class="s">Vertical slices, req IDs, tests · <b>you approve</b></div></div>
+    <div class="arrow">›</div>
+    <div class="stage"><div class="t">Per slice loop</div><div class="cmd">/wf-build</div><div class="s">Lock tests → implement → review → <b>show-me</b></div></div>
+    <div class="arrow">›</div>
+    <div class="stage"><div class="t">PR loop</div><div class="cmd">/wf-pr</div><div class="s">Description, branch review, <b>your code read</b></div></div>
+  </div>
+  <div class="esc"><b>/wf-escalate</b> — any loop that isn’t converging: revert the slice, log the decision, go back to <b>/wf-brainstorm</b> (rethink) or <b>/wf-plan</b> (replan).</div>
+
+  <h2 style="margin-top:8px"><span class="n">2</span>The commands</h2>
+  <div class="cmds">
+    <div class="card gate">
+      <div class="ch"><span class="cmd">/wf-start</span><span class="chip c-gate">You + agent</span></div>
+      <p class="what">Begin any feature, bug or small change.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>Picks the track, creates <code>.workflow/&lt;date&gt;-&lt;slug&gt;/</code>, drafts factual questions for research.</dd>
+        <dt>You</dt><dd>Answer one question at a time; approve the spec (what, why, done, out of scope) or bug report.</dd>
+        <dt>Makes</dt><dd><code>spec.md</code> or <code>bug-report.md</code>, <code>questions.md</code>, <code>active.env</code></dd>
+      </dl>
+      <div class="ex">e.g. <code>/wf-start add a configurable alarm-limit parameter</code></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="cmd">/wf-research</span><span class="chip c-agent">Agent</span></div>
+      <p class="what">Facts about the code as it is today.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>A read-only <b>researcher</b> answers <code>questions.md</code> only — it never sees the spec, so findings stay neutral.</dd>
+        <dt>You</dt><dd>Skim; flag anything that should change the spec.</dd>
+        <dt>Makes</dt><dd><code>research.md</code> — facts with file:line, no opinions</dd>
+      </dl>
+      <div class="ex">Feature track; optional for small changes.</div>
+    </div>
+    <div class="card you">
+      <div class="ch"><span class="cmd">/wf-brainstorm</span><span class="chip c-you">You + agent</span></div>
+      <p class="what">Agree the design before anything is built.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>Plays back the ask, asks one question at a time, lays out 2–3 approaches with trade-offs.</dd>
+        <dt>You</dt><dd>Pick an approach; revise until you <b>approve the design</b>.</dd>
+        <dt>Makes</dt><dd><code>design.md</code> (~200 lines: state, decisions, patterns, risks)</dd>
+      </dl>
+      <div class="ex">Also where escalations go to <b>rethink</b>.</div>
+    </div>
+    <div class="card gate">
+      <div class="ch"><span class="cmd">/wf-plan</span><span class="chip c-gate">Agent drafts, you approve</span></div>
+      <p class="what">Cut the design into thin vertical slices.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>Each slice gets req IDs, acceptance criteria, tests to write, files, a risk flag. Asks about gaps.</dd>
+        <dt>You</dt><dd><b>Approve the outline</b>, ask for changes, or say “rework” to go back to brainstorm.</dd>
+        <dt>Makes</dt><dd><code>outline.md</code> — slice 1 is a thin end-to-end slice</dd>
+      </dl>
+      <div class="ex">Small change: one-slice outline straight after <code>/wf-start</code>.</div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="cmd">/wf-build</span><span class="chip c-agent">Agent · you at show-me</span></div>
+      <p class="what">Build one slice at a time, tests first.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>Locks failing tests → implements (stop hook runs build + tests, max 5) → fresh two-stage review (max 3 fixes) → show-me.</dd>
+        <dt>You</dt><dd>See it run with test evidence; <b>approve</b> → commit → next slice.</dd>
+        <dt>Makes</dt><dd>Commits, <code>locked-tests.txt</code>, slice status in <code>outline.md</code></dd>
+      </dl>
+      <div class="ex">Re-run to resume; start a fresh chat if it gets long.</div>
+    </div>
+    <div class="card gate">
+      <div class="ch"><span class="cmd">/wf-debug</span><span class="chip c-gate">Agent · you approve fix</span></div>
+      <p class="what">Bug track: no fix without a root cause.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>Reproduces, locks a failing regression test, traces the root cause with evidence.</dd>
+        <dt>You</dt><dd><b>Approve root cause + fix</b>, then <code>/wf-build</code>. A design flaw goes to brainstorm.</dd>
+        <dt>Makes</dt><dd>Investigation in <code>bug-report.md</code>, one-slice <code>outline.md</code></dd>
+      </dl>
+      <div class="ex">Also usable mid-build when a failure’s cause isn’t obvious.</div>
+    </div>
+    <div class="card you">
+      <div class="ch"><span class="cmd">/wf-pr</span><span class="chip c-agent">Agent → you</span></div>
+      <p class="what">Review the whole branch, then hand over.</p>
+      <dl class="rows">
+        <dt>Agent</dt><dd>Writes the PR description; 5 lens reviewers + a verifier rank BLOCKER / IMPORTANT / NIT; fixes (max 2 rounds).</dd>
+        <dt>You</dt><dd><b>Read the code</b>; approve or send back. You merge — the agent never does.</dd>
+        <dt>Makes</dt><dd><code>pr-description.md</code>, <code>fix(review)</code> commits</dd>
+      </dl>
+      <div class="ex">Lenses: safety · concurrency · errors · compatibility · traceability</div>
+    </div>
+    <div class="card you">
+      <div class="ch"><span class="cmd">/wf-escalate</span><span class="chip c-you">You decide</span></div>
+      <p class="what">The planned exit when a loop won’t converge.</p>
+      <dl class="rows">
+        <dt>Fires</dt><dd>A limit hit, a plan issue from review, a wrong locked test, or you say no at show-me / code read.</dd>
+        <dt>Agent</dt><dd>Stops, proposes a revert (<b>you confirm</b> git commands), logs a dated decision.</dd>
+        <dt>Route</dt><dd><b>Rethink</b> → <code>/wf-brainstorm</code> · <b>Replan</b> → <code>/wf-plan</code></dd>
+      </dl>
+      <div class="ex">Run it yourself any time something feels off.</div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="panel">
+      <h3>Pick a track</h3>
+      <p class="seq"><b>Feature</b> — new behaviour worth designing<br><code>/wf-start → /wf-research → /wf-brainstorm → /wf-plan → /wf-build → /wf-pr</code></p>
+      <p class="seq"><b>Bug</b> — existing behaviour is wrong<br><code>/wf-start → /wf-debug → /wf-build → /wf-pr</code></p>
+      <p class="seq"><b>Small change</b> — ~1 hour, 1–3 files<br><code>/wf-start → /wf-plan → /wf-build → /wf-pr</code></p>
+      <p class="files" style="margin:5px 0 0"><b style="color:var(--ink)">Files:</b> <code>.workflow/active.env</code> tracks the current item and phase; every artifact lives in <code>.workflow/&lt;date&gt;-&lt;slug&gt;/</code></p>
+    </div>
+    <div class="panel">
+      <h3>Limits — then escalate</h3>
+      <table>
+        <tr><td>Stop hook build + test runs</td><td>5</td></tr>
+        <tr><td>Slice review → fix rounds</td><td>3</td></tr>
+        <tr><td>PR fix → re-run rounds</td><td>2</td></tr>
+        <tr><td>Planning rounds, then revisit spec</td><td>3</td></tr>
+      </table>
+      <p style="margin:4px 0 0;font-size:7.4pt">Tune in <code>.cursor/workflow.env</code></p>
+    </div>
+    <div class="panel">
+      <h3>Never</h3>
+      <ul class="never">
+        <li>Edit or loosen a locked test</li>
+        <li>Keep going past a limit</li>
+        <li>Let the agent merge, push or run destructive git</li>
+        <li>Fix a plan problem inside a build — escalate</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <span>Setup: copy <code>.cursor/</code> + <code>.workflow/</code> into the repo · set <code>BUILD_CMD</code> / <code>TEST_CMD</code> · Cursor 2.4+</span>
+  <span><code>github.com/robbietuk/gated-agent-workflow</code></span>
+</div>
+</body>
+</html>

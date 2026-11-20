@@ -7,6 +7,7 @@ fixes. Built for regulated (medical-device) software, where traceability and hum
 ![Feature track: you approve at each gate; the agent builds between them](docs/media/image1.png)
 
 - **Guide:** [docs/guide.md](docs/guide.md) (also as [Word](docs/guide.docx)) - tracks, walkthroughs, gates, limits, setup, FAQ.
+- **Cheat sheet:** [docs/cheatsheet.pdf](docs/cheatsheet.pdf) - one printable page with every command ([HTML source](docs/cheatsheet.html)).
 - **Slides:** [docs/slides.pdf](docs/slides.pdf) - a 16-slide overview to present the workflow to a team.
 - **Kit:** everything under [`.cursor/`](.cursor) and [`.workflow/templates/`](.workflow/templates) - copy into your repo root.
 
