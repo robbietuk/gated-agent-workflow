@@ -1,7 +1,7 @@
 {
   "name": "gated-agent-workflow",
   "description": "Gated, mostly agentic workflow for features and bug fixes: spec, research, brainstorm, plan, test-first slices, scaled reviews and a PR, with human approval at each gate.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "author": {
     "name": "Robert Twyman Skelly"
   },
