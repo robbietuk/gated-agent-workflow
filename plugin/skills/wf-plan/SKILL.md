@@ -12,7 +12,7 @@ proven by which tests. It is not the code. A plan longer than the code it descri
 Read `.workflow/active.env`, then `design.md` (feature), or `spec.md` (small), or `bug-report.md` (bug,
 when /wf-debug sends you here for a multi-slice fix), plus `research.md` and `decisions.md` if present.
 - Feature without an approved design.md: stop, "Run `/wf-brainstorm` first."
-- Set `PHASE=plan`.
+- Set `PHASE=plan`. Name this chat for this stage (rule: **Chat titles**).
 
 ## 1. Slice it
 Copy `.workflow/kit/templates/outline.md` to `$WORK_DIR/outline.md` and fill it.
@@ -57,7 +57,7 @@ you revise. Responses:
   tests; on the bug track keep the LOCK_SHA from /wf-debug and keep S1 as `tests-locked`). Do **not** set
   `PHASE=build` here: `/wf-build` does that when it starts, so the stop hook never fires at the end of a
   planning turn.
-- Recommend a new chat, then ask: "Recommended: start a new chat and run `/wf-build` (it starts with S1
+- Recommend a new chat, then ask: "Recommended: start a new chat named `<topic> · /wf-build` and run `/wf-build` (it starts with S1
   and only needs the outline). Or continue here now?" Once `/wf-build` starts, the stop hook runs build +
   tests after every agent turn.
 

@@ -61,6 +61,7 @@ If it is unclear (for example "it's a bug but the fix changes behaviour"), ask *
   LOCK_SHA=
   ```
 - Suggest a branch name (`feature/<slug>` or `bugfix/<slug>`). Create it only if the user says yes.
+- Name this chat for this stage (rule: **Chat titles**), now that the work item and any branch exist.
 
 ## 4. Co-write the spec (or bug report) with the user
 Ask **one question at a time**, each built on the last answer. Prefer a concrete proposal they can correct

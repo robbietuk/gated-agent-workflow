@@ -30,6 +30,16 @@ slice is done.
 - **Repo setup comes first.** The per-repo files live in `.workflow/config.env` and `.workflow/kit/`
   (scaling, CI procedure, templates). If they are missing, run the setup step of `/wf-start` before any
   other `/wf-*` skill.
+- **Chat titles.** Every chat is named `<topic> · /wf-<stage>` so open chats are easy to tell apart.
+  `/wf-<stage>` is the `/wf-*` skill now running (e.g. `/wf-debug`, `/wf-escalate`), not the `PHASE` value.
+  `<topic>` is the current git branch when it is a feature branch (not `main`, `master`, `develop` or a
+  detached HEAD); otherwise the work-item folder name from `WORK_DIR` (e.g. `<YYYY-MM-DD>-<slug>`);
+  before a work item exists, the topic in a few words. Examples: `feature/<slug> · /wf-build`,
+  `<YYYY-MM-DD>-<slug> · /wf-pr`.
+  - When a stage starts, name the chat it runs in: use the chat-rename tool if you have one (Cursor:
+    `rename_chat`). If you do not, print one line for the user: `Name this chat: <title>` (Claude Code:
+    `/rename <title>`). Rename only when the stage changes; the next slice in `/wf-build` keeps its title.
+  - A hand-off that recommends a new chat proposes that chat's title with its stage (see below).
 - **Hand-off: recommend, ask, then continue.** Every `/wf-*` skill ends by updating `PHASE`, saying where
   to run the next step, and asking "Continue with `/wf-<next>` now?". On a yes, read
   the `/wf-<next>` skill and follow it in this chat. On a no (or no answer), stop; the user can
@@ -42,5 +52,6 @@ slice is done.
   | Next slice in `/wf-build` | Continue here if the chat is short; **new chat** if it is long or the slice was large |
   | `/wf-pr` | **New chat**, then `/wf-pr`: it reviews the whole branch from files |
   | After `/wf-escalate` | Continue here if short; otherwise **new chat**, the reason is in `decisions.md` |
-  Say it as one line, e.g. "Recommended: start a new chat and run `/wf-build` (keeps the build's context
-  clean). Or continue here now?"
+  Say it as one line with the new chat's title, e.g.
+  "Recommended: start a new chat named `feature/<slug> · /wf-build` and run `/wf-build` (keeps the
+  build's context clean). Or continue here now?"

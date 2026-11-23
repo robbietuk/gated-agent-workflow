@@ -84,6 +84,8 @@ A feature goes from `/wf-start` to a merged PR in seven steps, with four points 
 
 Every command ends by asking “Continue with the next command now?”. Say yes and it carries on in the same chat; say no and run the next command later, or in a fresh chat. It never moves on without a yes. It also recommends where: keep going in the same chat through spec, research, brainstorm and plan, then start a new chat for `/wf-build` and for `/wf-pr` (and for later slices once a chat gets long). Every stage reads its inputs from `.workflow/`, so a new chat loses nothing and keeps the agent's context small.
 
+Each stage names the chat it runs in, `<topic> · /wf-<stage>`: the branch when you are on a feature branch (`feature/<slug> · /wf-build`), otherwise the work-item folder (`<YYYY-MM-DD>-<slug> · /wf-build`). When a hand-off recommends a new chat, it proposes that title. Cursor renames the chat itself where its rename tool is available; otherwise, and in Claude Code (`/rename <title>`), the skill prints the title for you to set.
+
 1.  **Start: `/wf-start`**
 
     - You: describe the feature; confirm the Feature track; agree `spec.md` (what, why, done).
@@ -496,7 +498,7 @@ One page: commands per track, who acts at each gate, and the limits.
 | PR fix → re-run    | 2 rounds    | Escalate         |
 | Planning rounds    | More than 3 | Revisit the spec |
 
-- **Hand-offs**: every command ends by asking to continue. Same chat through planning; a new chat for `/wf-build` and `/wf-pr`.
+- **Hand-offs**: every command ends by asking to continue. Same chat through planning; a new chat for `/wf-build` and `/wf-pr`, with a proposed title like `feature/foo · /wf-build`.
 
 - **Per slice**: lock failing tests → implement (stop hook) → review scaled to the slice → show-me → commit.
 

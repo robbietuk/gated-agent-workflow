@@ -14,7 +14,7 @@ production code changes, and prove it with a test that fails today.
   then return to /wf-build. Three failed fix attempts in a slice -> stop and `/wf-escalate`.
 
 ## 1. Read and reproduce (PHASE=research)
-- Read `.workflow/active.env`, `bug-report.md`, `decisions.md`. Set `PHASE=research`.
+- Read `.workflow/active.env`, `bug-report.md`, `decisions.md`. Set `PHASE=research`. Name this chat for this stage (rule: **Chat titles**).
 - Read error messages, logs and stack traces completely; note file:line and codes.
 - Reproduce with the report's steps. Record exact commands/inputs and how often it happens.
   Cannot reproduce? Gather more data (logs, config, firmware version); ask the user one question at a time.
@@ -66,7 +66,7 @@ approve, change, or rethink?
 - Dated `decisions.md` entry: root cause, approved fix approach, req/hazard IDs.
 - Keep `PHASE=plan` (`/wf-build` switches it to `build` when it starts; setting it here would make the
   stop hook fire on the still-failing regression test at the end of this turn). Then ask:
-  "Recommended: start a new chat and run `/wf-build` (the root cause is in bug-report.md). Or continue
+  "Recommended: start a new chat named `<topic> · /wf-build` and run `/wf-build` (the root cause is in bug-report.md). Or continue
   here now?"
 
 ## Red flags: stop and go back to step 3

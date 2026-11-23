@@ -16,7 +16,7 @@ Reading code and research is fine.
 
 ## Preconditions
 Read `.workflow/active.env`, `spec.md` (or `bug-report.md`), `research.md`, `decisions.md`, and the
-code that research points to. Set `PHASE=brainstorm`. If you arrived from an escalation, read the latest
+code that research points to. Set `PHASE=brainstorm`. Name this chat for this stage (rule: **Chat titles**). If you arrived from an escalation, read the latest
 `decisions.md` entry first: it says what failed and what must change.
 
 ## 1. Play back what you know (first message, ~200 words)
