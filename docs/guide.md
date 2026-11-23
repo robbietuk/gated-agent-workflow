@@ -84,7 +84,7 @@ A feature goes from `/wf-start` to a merged PR in seven steps, with four points 
 
 Every command ends by asking “Continue with the next command now?”. Say yes and it carries on in the same chat; say no and run the next command later, or in a fresh chat. It never moves on without a yes. It also recommends where: keep going in the same chat through spec, research, brainstorm and plan, then start a new chat for `/wf-build` and for `/wf-pr` (and for later slices once a chat gets long). Every stage reads its inputs from `.workflow/`, so a new chat loses nothing and keeps the agent's context small.
 
-Each stage names the chat it runs in, `<topic> · /wf-<stage>`: the branch when you are on a feature branch, otherwise the work-item folder (for example `feature/network-probe · /wf-build`). When a hand-off recommends a new chat, it proposes that title. Cursor renames the chat itself where its rename tool is available; otherwise, and in Claude Code (`/rename <title>`), the skill prints the title for you to set.
+Each stage names the chat it runs in, `<topic> · /wf-<stage>`: the branch when you are on a feature branch (`feature/network-probe · /wf-build`), otherwise the work-item folder (`2026-11-20-network-probe · /wf-build`). When a hand-off recommends a new chat, it proposes that title. Cursor renames the chat itself where its rename tool is available; otherwise, and in Claude Code (`/rename <title>`), the skill prints the title for you to set.
 
 1.  **Start: `/wf-start`**
 
