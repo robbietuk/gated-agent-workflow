@@ -12,7 +12,7 @@ two apart stops the solution from bending the facts.
 - Read `.workflow/active.env`. Need `WORK_DIR` and a non-empty `$WORK_DIR/questions.md`.
 - If `questions.md` is missing or empty, say so and offer to draft it from the spec (same rules as
   /wf-start step 5), then show it to the user before continuing.
-- Set `PHASE=research`.
+- Set `PHASE=research`. Name this chat for this stage (rule: **Chat titles**).
 
 ## 1. Delegate to the researcher subagent
 Invoke the `researcher` subagent (`/researcher`). It starts with a fresh context and sees only what you

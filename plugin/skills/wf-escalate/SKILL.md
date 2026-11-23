@@ -10,7 +10,7 @@ to stop the churn, keep what was learned, and send the work back to the person w
 
 ## 1. Stop
 - Make no further changes to product code or tests from this point.
-- Set `PHASE=escalated` in `.workflow/active.env` **first** (this silences the stop hook).
+- Set `PHASE=escalated` in `.workflow/active.env` **first** (this silences the stop hook). Name this chat for this stage (rule: **Chat titles**).
 - Read `active.env`, `outline.md` (current slice block: Base SHA, Lock SHA, status, review rounds),
   `decisions.md`, and `$WORK_DIR/last-run.log` if present.
 
@@ -60,7 +60,8 @@ Recommend one, with a one-line reason, and let the user choose:
 - **Replan -> plan:** the design holds but a slice is too big, mis-ordered, has wrong acceptance criteria or
   a wrong locked test. Set `PHASE=plan`. Ask: "Continue with `/wf-plan` now?"
 - **Spec is wrong:** suggest editing `spec.md` with the user first, then `/wf-brainstorm`.
-If this chat is long, recommend a new chat for the next step: the reason is recorded in `decisions.md`.
+If this chat is long, recommend a new chat for the next step, with its title (`<topic> · /wf-<next>`): the
+reason is recorded in `decisions.md`.
 
 ## Never
 - Keep coding "just to try one thing" after escalating.

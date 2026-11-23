@@ -23,6 +23,13 @@ case "$OUT" in *"/gated-agent-workflow:wf-"*) ok "session-start maps skill names
 case "$OUT" in *"# Agentic workflow guardrails"*) ok "session-start includes the rules" ;; *) bad "session-start includes the rules" ;; esac
 case "$OUT" in *"alwaysApply"*) bad "session-start strips the rule frontmatter" ;; *) ok "session-start strips the rule frontmatter" ;; esac
 
+# Every skill names its chat when its stage starts (rule: Chat titles).
+MISSING=""
+for f in plugin/skills/*/SKILL.md; do grep -q 'Chat titles' "$f" || MISSING="$MISSING $f"; done
+[ -z "$MISSING" ] && ok "every skill names its chat" || bad "every skill names its chat" "missing in:$MISSING"
+grep -q '^- \*\*Chat titles\.\*\*' plugin/rules/agentic-workflow.mdc && ok "rule defines chat titles" || bad "rule defines chat titles"
+case "$OUT" in *"/rename <title>"*) ok "session-start maps chat naming to /rename" ;; *) bad "session-start maps chat naming to /rename" ;; esac
+
 # 3. Copy installer
 R="$TMP/fresh repo"; mkdir -p "$R" && git -C "$R" init -q
 if bash tools/install-into-repo.sh "$R" > "$TMP/inst.log" 2>&1; then ok "installer runs"; else bad "installer runs" "$(tail -3 "$TMP/inst.log")"; fi

@@ -10,7 +10,7 @@ through the lenses that matter for device software, before a human reads it.
 
 ## Preconditions
 - Read `.workflow/active.env`, `.workflow/config.env`, `outline.md` (every slice `done`), `design.md` (or
-  `spec.md` / `bug-report.md`), `decisions.md`, `locked-tests.txt`. Set `PHASE=pr`.
+  `spec.md` / `bug-report.md`), `decisions.md`, `locked-tests.txt`. Set `PHASE=pr`. Name this chat for this stage (rule: **Chat titles**).
 - Any slice not `done`: stop, "Run `/wf-build`."
 - Base branch: from the user or the branch's upstream; if unsure, ask once.
   `MERGE_BASE=$(git merge-base <base> HEAD)`.

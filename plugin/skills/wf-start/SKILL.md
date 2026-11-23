@@ -60,6 +60,7 @@ If it is unclear (for example "it's a bug but the fix changes behaviour"), ask *
   SLICE=
   LOCK_SHA=
   ```
+- Name this chat for this stage (rule: **Chat titles**), now that the work item has a folder.
 - Suggest a branch name (`feature/<slug>` or `bugfix/<slug>`). Create it only if the user says yes.
 
 ## 4. Co-write the spec (or bug report) with the user
