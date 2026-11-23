@@ -33,9 +33,9 @@ slice is done.
 - **Chat titles.** Every chat is named `<topic> · /wf-<stage>` so open chats are easy to tell apart.
   `/wf-<stage>` is the `/wf-*` skill now running (e.g. `/wf-debug`, `/wf-escalate`), not the `PHASE` value.
   `<topic>` is the current git branch when it is a feature branch (not `main`, `master`, `develop` or a
-  detached HEAD); otherwise the work-item folder name from `WORK_DIR` (e.g. `2026-11-20-network-probe`);
-  before a work item exists, the topic in a few words. Examples: `feature/network-probe · /wf-build`,
-  `2026-11-20-network-probe · /wf-pr`.
+  detached HEAD); otherwise the work-item folder name from `WORK_DIR` (e.g. `<YYYY-MM-DD>-<slug>`);
+  before a work item exists, the topic in a few words. Examples: `feature/<slug> · /wf-build`,
+  `<YYYY-MM-DD>-<slug> · /wf-pr`.
   - When a stage starts, name the chat it runs in: use the chat-rename tool if you have one (Cursor:
     `rename_chat`). If you do not, print one line for the user: `Name this chat: <title>` (Claude Code:
     `/rename <title>`). Rename only when the stage changes; the next slice in `/wf-build` keeps its title.
@@ -53,5 +53,5 @@ slice is done.
   | `/wf-pr` | **New chat**, then `/wf-pr`: it reviews the whole branch from files |
   | After `/wf-escalate` | Continue here if short; otherwise **new chat**, the reason is in `decisions.md` |
   Say it as one line with the new chat's title, e.g.
-  "Recommended: start a new chat named `feature/network-probe · /wf-build` and run `/wf-build` (keeps the
+  "Recommended: start a new chat named `feature/<slug> · /wf-build` and run `/wf-build` (keeps the
   build's context clean). Or continue here now?"

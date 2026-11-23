@@ -339,13 +339,13 @@ once a chat gets long). Every stage reads its inputs from
 agent's context small.</p>
 <p>Each stage names the chat it runs in,
 <code>&lt;topic&gt; · /wf-&lt;stage&gt;</code>: the branch when you are
-on a feature branch (<code>feature/network-probe · /wf-build</code>),
+on a feature branch (<code>feature/&lt;slug&gt; · /wf-build</code>),
 otherwise the work-item folder
-(<code>2026-11-20-network-probe · /wf-build</code>). When a hand-off
-recommends a new chat, it proposes that title. Cursor renames the chat
-itself where its rename tool is available; otherwise, and in Claude Code
-(<code>/rename &lt;title&gt;</code>), the skill prints the title for you
-to set.</p>
+(<code>&lt;YYYY-MM-DD&gt;-&lt;slug&gt; · /wf-build</code>). When a
+hand-off recommends a new chat, it proposes that title. Cursor renames
+the chat itself where its rename tool is available; otherwise, and in
+Claude Code (<code>/rename &lt;title&gt;</code>), the skill prints the
+title for you to set.</p>
 <ol type="1">
 <li><p><strong>Start: <code>/wf-start</code></strong></p>
 <ul>
