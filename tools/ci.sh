@@ -27,6 +27,9 @@ case "$OUT" in *"alwaysApply"*) bad "session-start strips the rule frontmatter" 
 MISSING=""
 for f in plugin/skills/*/SKILL.md; do grep -q 'Chat titles' "$f" || MISSING="$MISSING $f"; done
 [ -z "$MISSING" ] && ok "every skill names its chat" || bad "every skill names its chat" "missing in:$MISSING"
+# ...and every hand-off that recommends a new chat proposes its title (with the "·" separator).
+UNTITLED="$(grep -n 'start a new chat' plugin/skills/*/SKILL.md plugin/rules/agentic-workflow.mdc | grep -v '·' || true)"
+[ -z "$UNTITLED" ] && ok "new-chat hand-offs propose a title" || bad "new-chat hand-offs propose a title" "$UNTITLED"
 grep -q '^- \*\*Chat titles\.\*\*' plugin/rules/agentic-workflow.mdc && ok "rule defines chat titles" || bad "rule defines chat titles"
 case "$OUT" in *"/rename <title>"*) ok "session-start maps chat naming to /rename" ;; *) bad "session-start maps chat naming to /rename" ;; esac
 

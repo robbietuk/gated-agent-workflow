@@ -340,9 +340,9 @@ agent's context small.</p>
 <p>Each stage names the chat it runs in,
 <code>&lt;topic&gt; · /wf-&lt;stage&gt;</code>: the branch when you are
 on a feature branch, otherwise the work-item folder (for example
-<code>feat/network-probe · /wf-build</code>). When a hand-off recommends
-a new chat, it proposes that title. Cursor renames the chat itself where
-its rename tool is available; otherwise, and in Claude Code
+<code>feature/network-probe · /wf-build</code>). When a hand-off
+recommends a new chat, it proposes that title. Cursor renames the chat
+itself where its rename tool is available; otherwise, and in Claude Code
 (<code>/rename &lt;title&gt;</code>), the skill prints the title for you
 to set.</p>
 <ol type="1">
@@ -1111,7 +1111,7 @@ lock failing test, root cause) → <code>/wf-build</code> (one slice) →
 <li><p><strong>Hand-offs</strong>: every command ends by asking to
 continue. Same chat through planning; a new chat for
 <code>/wf-build</code> and <code>/wf-pr</code>, with a proposed title
-like <code>feat/foo · /wf-build</code>.</p></li>
+like <code>feature/foo · /wf-build</code>.</p></li>
 <li><p><strong>Per slice</strong>: lock failing tests → implement (stop
 hook) → review scaled to the slice → show-me → commit.</p></li>
 <li><p><strong>CI checks</strong>: fast ones before each show-me, all

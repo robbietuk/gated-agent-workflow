@@ -12,7 +12,7 @@ echo "The gated-agent-workflow plugin is installed. In Claude Code its names map
 echo "- A skill written as /wf-<name> (for example /wf-start, /wf-escalate) is the /gated-agent-workflow:wf-<name> skill."
 echo "- A subagent written as /researcher, /slice-reviewer, /lens-reviewer or /finding-verifier is the gated-agent-workflow:<name> subagent, started with the Agent tool."
 echo "- 'Start a new chat' means /clear or a new session; all workflow state is on disk in .workflow/."
-echo "- Claude Code has no chat-rename tool: where the rules say to name the chat, print the line '/rename <title>' for the user."
+echo "- Claude Code has no chat-rename tool: where the rules say to name the chat, print 'Name this chat: /rename <title>' for the user to run."
 echo
 [ -f "$RULE" ] || exit 0
 # The rule file without its .mdc frontmatter.
